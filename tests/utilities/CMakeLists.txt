@@ -1,6 +1,9 @@
 # Zeus Utilities Tests
 cmake_minimum_required(VERSION 3.15)
 
+# 添加cmake模块路径
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+
 # 查找测试框架
 find_package(GTest REQUIRED)
 
