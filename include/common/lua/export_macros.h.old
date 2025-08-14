@@ -1,0 +1,188 @@
+#pragma once
+
+/**
+ * @file export_macros.h
+ * @brief EXPORT_LUA 宏系统定义
+ * 
+ * 这些宏用于标记需要导出到 Lua 的 C++ 代码元素。
+ * lua_binding_generator 工具会扫描这些宏并自动生成对应的 Lua 绑定代码。
+ * 
+ * 使用方法：
+ * 1. 在需要导出的类前加上 EXPORT_LUA_CLASS 宏
+ * 2. 在需要导出的方法前加上 EXPORT_LUA_METHOD 宏
+ * 3. 在需要导出的属性前加上 EXPORT_LUA_PROPERTY 宏
+ * 
+ * 示例：
+ * @code
+ * class EXPORT_LUA_CLASS(Player, namespace=game) Player {
+ * public:
+ *     EXPORT_LUA_METHOD(getName)
+ *     std::string getName() const;
+ *     
+ *     EXPORT_LUA_PROPERTY(health, readonly)
+ *     int getHealth() const;
+ * };
+ * @endcode
+ */
+
+// 类导出宏
+// 参数：ClassName - 类名
+// 可选参数：namespace=命名空间, alias=别名
+#define EXPORT_LUA_CLASS(ClassName, ...) \
+    __attribute__((annotate("lua_export_class:" #ClassName ":" #__VA_ARGS__)))
+
+// 方法导出宏
+// 参数：MethodName - 方法名
+// 可选参数：min_args=最小参数数量, max_args=最大参数数量, alias=别名
+#define EXPORT_LUA_METHOD(MethodName, ...) \
+    __attribute__((annotate("lua_export_method:" #MethodName ":" #__VA_ARGS__)))
+
+// 属性导出宏
+// 参数：PropertyName - 属性名, Access - 访问类型 (readonly/readwrite)
+// 可选参数：getter=获取器方法名, setter=设置器方法名, alias=别名
+#define EXPORT_LUA_PROPERTY(PropertyName, Access, ...) \
+    __attribute__((annotate("lua_export_property:" #PropertyName ":" #Access ":" #__VA_ARGS__)))
+
+// 静态方法导出宏
+// 参数：MethodName - 静态方法名
+// 可选参数：alias=别名
+#define EXPORT_LUA_STATIC_METHOD(MethodName, ...) \
+    __attribute__((annotate("lua_export_static_method:" #MethodName ":" #__VA_ARGS__)))
+
+// 构造函数导出宏
+// 可选参数：args=参数类型列表, alias=别名
+#define EXPORT_LUA_CONSTRUCTOR(...) \
+    __attribute__((annotate("lua_export_constructor:" #__VA_ARGS__)))
+
+// 枚举导出宏
+// 参数：EnumName - 枚举名
+// 可选参数：namespace=命名空间, alias=别名
+#define EXPORT_LUA_ENUM(EnumName, ...) \
+    __attribute__((annotate("lua_export_enum:" #EnumName ":" #__VA_ARGS__)))
+
+// 全局函数导出宏
+// 参数：FunctionName - 函数名
+// 可选参数：namespace=命名空间, alias=别名
+#define EXPORT_LUA_FUNCTION(FunctionName, ...) \
+    __attribute__((annotate("lua_export_function:" #FunctionName ":" #__VA_ARGS__)))
+
+// 常量导出宏
+// 参数：ConstantName - 常量名
+// 可选参数：namespace=命名空间, alias=别名, value=值
+#define EXPORT_LUA_CONSTANT(ConstantName, ...) \
+    __attribute__((annotate("lua_export_constant:" #ConstantName ":" #__VA_ARGS__)))
+
+// 模块定义宏
+// 参数：ModuleName - 模块名
+// 这个宏应该放在文件的顶部，用于定义整个文件所属的 Lua 模块
+#define EXPORT_LUA_MODULE(ModuleName) \
+    namespace { \
+        static constexpr const char* __lua_module_name = #ModuleName; \
+        __attribute__((annotate("lua_export_module:" #ModuleName))) \
+        static const int __lua_module_marker = 0; \
+    }
+
+// 命名空间导出宏
+// 参数：NamespaceName - 命名空间名
+// 用于标记某个 C++ 命名空间需要映射到 Lua
+#define EXPORT_LUA_NAMESPACE(NamespaceName, ...) \
+    __attribute__((annotate("lua_export_namespace:" #NamespaceName ":" #__VA_ARGS__)))
+
+// 操作符重载导出宏
+// 参数：OperatorName - 操作符名称 (add, sub, mul, div, eq, lt 等)
+// 可选参数：method=对应的方法名
+#define EXPORT_LUA_OPERATOR(OperatorName, ...) \
+    __attribute__((annotate("lua_export_operator:" #OperatorName ":" #__VA_ARGS__)))
+
+// 类型转换导出宏
+// 用于标记自定义类型转换器
+#define EXPORT_LUA_TYPE_CONVERTER(FromType, ToType, ...) \
+    __attribute__((annotate("lua_export_type_converter:" #FromType ":" #ToType ":" #__VA_ARGS__)))
+
+// 继承关系导出宏
+// 参数：BaseClass - 基类名
+// 用于显式声明继承关系，确保 Lua 绑定正确处理多态
+#define EXPORT_LUA_INHERIT(BaseClass, ...) \
+    __attribute__((annotate("lua_export_inherit:" #BaseClass ":" #__VA_ARGS__)))
+
+// 忽略导出宏
+// 用于标记某个本来会被导出的元素不应该被导出
+#define EXPORT_LUA_IGNORE(Reason, ...) \
+    __attribute__((annotate("lua_export_ignore:" #Reason ":" #__VA_ARGS__)))
+
+/**
+ * @brief 便利宏定义
+ * 
+ * 这些宏提供了更简洁的语法来标记常见的导出模式
+ */
+
+// 只读属性快捷宏
+#define EXPORT_LUA_READONLY_PROPERTY(PropertyName, ...) \
+    EXPORT_LUA_PROPERTY(PropertyName, readonly, __VA_ARGS__)
+
+// 读写属性快捷宏  
+#define EXPORT_LUA_READWRITE_PROPERTY(PropertyName, ...) \
+    EXPORT_LUA_PROPERTY(PropertyName, readwrite, __VA_ARGS__)
+
+// 简单类导出宏（无额外参数）
+#define EXPORT_LUA_SIMPLE_CLASS(ClassName) \
+    EXPORT_LUA_CLASS(ClassName)
+
+// 简单方法导出宏（无额外参数）
+#define EXPORT_LUA_SIMPLE_METHOD(MethodName) \
+    EXPORT_LUA_METHOD(MethodName)
+
+// 简单函数导出宏（无额外参数）
+#define EXPORT_LUA_SIMPLE_FUNCTION(FunctionName) \
+    EXPORT_LUA_FUNCTION(FunctionName)
+
+/**
+ * @brief 条件编译支持
+ * 
+ * 在不支持属性注解的编译器上，这些宏会被定义为空，
+ * 确保代码仍然可以正常编译
+ */
+#ifndef __has_attribute
+#define __has_attribute(x) 0
+#endif
+
+#if !__has_attribute(annotate) && !defined(__clang__)
+// 如果编译器不支持 annotate 属性，将宏定义为空
+#undef EXPORT_LUA_CLASS
+#undef EXPORT_LUA_METHOD
+#undef EXPORT_LUA_PROPERTY
+#undef EXPORT_LUA_STATIC_METHOD
+#undef EXPORT_LUA_CONSTRUCTOR
+#undef EXPORT_LUA_ENUM
+#undef EXPORT_LUA_FUNCTION
+#undef EXPORT_LUA_CONSTANT
+#undef EXPORT_LUA_NAMESPACE
+#undef EXPORT_LUA_OPERATOR
+#undef EXPORT_LUA_TYPE_CONVERTER
+#undef EXPORT_LUA_INHERIT
+#undef EXPORT_LUA_IGNORE
+
+#define EXPORT_LUA_CLASS(ClassName, ...)
+#define EXPORT_LUA_METHOD(MethodName, ...)
+#define EXPORT_LUA_PROPERTY(PropertyName, Access, ...)
+#define EXPORT_LUA_STATIC_METHOD(MethodName, ...)
+#define EXPORT_LUA_CONSTRUCTOR(...)
+#define EXPORT_LUA_ENUM(EnumName, ...)
+#define EXPORT_LUA_FUNCTION(FunctionName, ...)
+#define EXPORT_LUA_CONSTANT(ConstantName, ...)
+#define EXPORT_LUA_NAMESPACE(NamespaceName, ...)
+#define EXPORT_LUA_OPERATOR(OperatorName, ...)
+#define EXPORT_LUA_TYPE_CONVERTER(FromType, ToType, ...)
+#define EXPORT_LUA_INHERIT(BaseClass, ...)
+#define EXPORT_LUA_IGNORE(Reason, ...)
+
+#warning "Compiler does not support __attribute__((annotate)). EXPORT_LUA macros will have no effect."
+#endif
+
+/**
+ * @brief 版本信息
+ */
+#define EXPORT_LUA_MACRO_VERSION_MAJOR 1
+#define EXPORT_LUA_MACRO_VERSION_MINOR 0
+#define EXPORT_LUA_MACRO_VERSION_PATCH 0
+#define EXPORT_LUA_MACRO_VERSION "1.0.0"

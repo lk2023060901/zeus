@@ -186,7 +186,7 @@ public:
      * @param requires_value 是否需要参数值
      */
     void AddArgumentWithHandler(const std::string& short_name, const std::string& long_name,
-                              const std::string& description, ArgumentHandler handler,
+                              const std::string& description, hooks::ArgumentHandler handler,
                               bool requires_value = true);
     
     /**
@@ -221,13 +221,13 @@ public:
      * @brief 设置自定义用法显示器
      * @param provider 用法显示器
      */
-    void SetUsageProvider(UsageProvider provider);
+    void SetUsageProvider(hooks::UsageProvider provider);
     
     /**
      * @brief 设置自定义版本显示器
      * @param provider 版本显示器
      */
-    void SetVersionProvider(VersionProvider provider);
+    void SetVersionProvider(hooks::VersionProvider provider);
     
     /**
      * @brief 显示用法信息
@@ -244,7 +244,7 @@ public:
      * @brief 获取命令行配置覆盖
      * @return 解析得到的配置覆盖信息
      */
-    CommandLineOverrides GetCommandLineOverrides() const;
+    hooks::CommandLineOverrides GetCommandLineOverrides() const;
     
     /**
      * @brief 检查是否有命令行配置覆盖

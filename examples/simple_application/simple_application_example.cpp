@@ -46,7 +46,7 @@ int main() {
                 
                 // 创建HTTP服务选项
                 HttpServiceOptions options;
-                options.request_handler = [](const std::string& method, const std::string& path,
+                options.request_handler = [&app](const std::string& method, const std::string& path,
                                            const std::unordered_map<std::string, std::string>& headers,
                                            const std::string& body, std::string& response) {
                     std::cout << "🌐 HTTP请求: " << method << " " << path << std::endl;

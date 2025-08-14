@@ -40,7 +40,7 @@ TEST_F(StringUtilsAdvancedTest, ChinesePunctuationDetection) {
     EXPECT_TRUE(utils.HasChinesePunctuation("测试：数据"));  // 中文冒号
     EXPECT_TRUE(utils.HasChinesePunctuation("问题？答案"));  // 中文问号
     EXPECT_TRUE(utils.HasChinesePunctuation("感叹！号"));    // 中文感叹号
-    EXPECT_TRUE(utils.HasChinesePunctuation("引用"内容""));  // 中文引号
+    EXPECT_TRUE(utils.HasChinesePunctuation("引用\u201c内容\u201d"));  // 中文引号
     EXPECT_TRUE(utils.HasChinesePunctuation("括号（内容）")); // 中文括号
     EXPECT_TRUE(utils.HasChinesePunctuation("分号；测试"));  // 中文分号
     
@@ -73,7 +73,7 @@ TEST_F(StringUtilsAdvancedTest, PunctuationNormalization) {
     EXPECT_EQ(utils.NormalizePunctuation("测试：数据"), "测试:数据");
     EXPECT_EQ(utils.NormalizePunctuation("问题？"), "问题?");
     EXPECT_EQ(utils.NormalizePunctuation("感叹！"), "感叹!");
-    EXPECT_EQ(utils.NormalizePunctuation("引用"内容""), "引用\"内容\"");
+    EXPECT_EQ(utils.NormalizePunctuation("引用\u201c内容\u201d"), "引用\"内容\"");
     EXPECT_EQ(utils.NormalizePunctuation("括号（内容）"), "括号(内容)");
     EXPECT_EQ(utils.NormalizePunctuation("分号；测试"), "分号;测试");
     

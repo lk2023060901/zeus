@@ -16,8 +16,7 @@ set_target_properties(custom_formatters_example PROPERTIES
 # 链接依赖库
 target_link_libraries(custom_formatters_example
     PRIVATE
-        zeus_structured_spdlog
-        zeus_spdlog
+        common_spdlog
         fmt::fmt
         Threads::Threads
 )

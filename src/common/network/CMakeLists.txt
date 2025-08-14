@@ -42,6 +42,9 @@ set(NETWORK_HEADERS
 # Create the network library
 add_library(common_network ${NETWORK_SOURCES} ${NETWORK_HEADERS})
 
+# Create alias for backwards compatibility
+add_library(zeus_network ALIAS common_network)
+
 # Set target properties
 set_target_properties(common_network PROPERTIES
     CXX_STANDARD 17

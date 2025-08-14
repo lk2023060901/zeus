@@ -287,7 +287,7 @@ void SetupGatewayArguments(Application& app, const std::string& executable_path)
     // 监听地址参数 - 支持多个地址和协议
     app.AddArgumentWithHandler("", "listen", "添加监听地址 (格式: [protocol://]address:port)",
         [](Application& app, const std::string& name, const std::string& value) -> bool {
-            auto endpoint = ListenEndpoint::Parse(value);
+            auto endpoint = core::app::hooks::ListenEndpoint::Parse(value);
             if (!endpoint) {
                 std::cerr << "❌ 错误: 无效的监听地址格式: " << value << std::endl;
                 std::cerr << "格式: [protocol://]address:port" << std::endl;

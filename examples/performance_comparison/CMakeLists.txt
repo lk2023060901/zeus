@@ -16,8 +16,7 @@ set_target_properties(performance_comparison_example PROPERTIES
 # 链接依赖库
 target_link_libraries(performance_comparison_example
     PRIVATE
-        zeus_structured_spdlog
-        zeus_spdlog
+        common_spdlog
         fmt::fmt
         nlohmann_json::nlohmann_json  # 用于JSON对比
         Threads::Threads

@@ -5,6 +5,10 @@ project(Zeus VERSION 1.0.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 添加自定义 CMake 模块路径
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+
+
 # 构建类型选项 - 控制静态库/动态库
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
 
@@ -20,8 +24,17 @@ option(USE_KCP_PROTOCOL "Use KCP protocol for all Zeus services instead of TCP" 
 # Gateway模块编译选项
 option(BUILD_GATEWAY "Build Gateway module" ON)
 
+# 开发工具编译选项 - 控制是否编译开发工具（默认关闭）
+option(BUILD_TOOLS "Build development tools" OFF)
+
+# Lua 绑定生成器编译选项 - 控制是否编译 Lua 绑定生成器（默认关闭）
+option(BUILD_LUA_BINDINGS "Build Lua binding generator and support" OFF)
+
 # 添加common库子项目
 add_subdirectory(src/common)
+
+# 添加core app模块
+add_subdirectory(src/core/app)
 
 # 添加Gateway模块（如果启用）
 if(BUILD_GATEWAY)
@@ -35,7 +48,17 @@ endif()
 
 # 添加示例模块（如果启用）
 if(BUILD_EXAMPLES)
+    # 为示例项目查找必需的库
+    find_package(fmt REQUIRED)
+    find_package(Boost REQUIRED)
+    find_package(NlohmannJson REQUIRED)
+    find_package(Threads REQUIRED)
     add_subdirectory(examples)
+endif()
+
+# 添加工具模块（如果启用）
+if(BUILD_TOOLS OR BUILD_LUA_BINDINGS)
+    add_subdirectory(tools)
 endif()
 
 # 显示编译信息
@@ -50,6 +73,8 @@ message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "Build Tests: ${BUILD_TESTS}")
 message(STATUS "Build Examples: ${BUILD_EXAMPLES}")
 message(STATUS "Build Gateway: ${BUILD_GATEWAY}")
+message(STATUS "Build Tools: ${BUILD_TOOLS}")
+message(STATUS "Build Lua Bindings: ${BUILD_LUA_BINDINGS}")
 if(USE_KCP_PROTOCOL)
     message(STATUS "Network Protocol: KCP (Low-latency)")
 else()

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 /**
  * @file zeus_structured_log.h
  * @brief Zeus结构化日志 - 统一入口头文件

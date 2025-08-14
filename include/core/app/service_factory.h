@@ -132,12 +132,22 @@ public:
      * @brief 获取执行器
      */
     boost::asio::any_io_executor GetExecutor() const { return executor_; }
+    
+    /**
+     * @brief 创建TCP服务器
+     */
+    std::unique_ptr<Service> CreateTcpServer(const ListenerConfig& config, const TcpServiceOptions& options);
+    
+    /**
+     * @brief 创建KCP服务器
+     */
+    std::unique_ptr<Service> CreateKcpServer(const ListenerConfig& config, const KcpServiceOptions& options);
 
 private:
     // 工具方法
     common::network::http::HttpServerConfig CreateHttpServerConfig(const ListenerConfig& config);
-    common::network::TcpAcceptor::Config CreateTcpAcceptorConfig(const ListenerConfig& config);
-    common::network::KcpAcceptor::Config CreateKcpAcceptorConfig(const ListenerConfig& config);
+    std::tuple<uint16_t, std::string> CreateTcpAcceptorConfig(const ListenerConfig& config);
+    std::tuple<uint16_t, std::string, common::network::KcpConnector::KcpConfig> CreateKcpAcceptorConfig(const ListenerConfig& config);
     
     boost::asio::ssl::context CreateSSLContext(const SSLConfig& ssl_config, bool is_server);
     

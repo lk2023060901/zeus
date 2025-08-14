@@ -86,26 +86,8 @@ install(EXPORT zeus_common_utilities_targets
     DESTINATION lib/cmake/zeus_common_utilities
 )
 
-# 创建配置文件
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/zeus_common_utilities_config.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/zeus_common_utilities_config.cmake"
-    INSTALL_DESTINATION lib/cmake/zeus_common_utilities
-)
-
-write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/zeus_common_utilities_config_version.cmake"
-    VERSION 1.0.0
-    COMPATIBILITY SameMajorVersion
-)
-
-install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/zeus_common_utilities_config.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/zeus_common_utilities_config_version.cmake"
-    DESTINATION lib/cmake/zeus_common_utilities
-)
+# 简化配置 - 暂时移除复杂的包配置文件
+# TODO: 添加适当的配置文件模板
 
 # 添加别名以便在同一项目中使用
 add_library(zeus::common_utilities ALIAS ${UTILITIES_LIB_NAME})
@@ -123,6 +105,7 @@ if(BUILD_TESTING)
 endif()
 
 # 可选：添加示例
-if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
+# if(BUILD_EXAMPLES)
+#     add_subdirectory(examples)
+# endif()
+# TODO: 创建utilities库的示例

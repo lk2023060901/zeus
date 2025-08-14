@@ -154,7 +154,7 @@ std::string StringUtils::NormalizePunctuation(const std::string& str) const {
 std::vector<std::pair<std::string, std::string>> StringUtils::GetChinesePunctuationReplacements() const {
     return {
         {"，", ","},   {"。", "."},   {"；", ";"},   {"：", ":"},
-        {"？", "?"},   {"！", "!"},   {""", "\""},  {""", "\""},
+        {"？", "?"},   {"！", "!"},   {"\u201c", "\""},  {"\u201d", "\""},
         {"'", "'"},    {"'", "'"},    {"（", "("},   {"）", ")"},
         {"【", "["},   {"】", "]"},   {"《", "<"},   {"》", ">"},
         {"、", ","},   {"…", "..."}

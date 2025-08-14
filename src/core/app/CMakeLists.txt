@@ -48,18 +48,6 @@ target_link_libraries(${MODULE_NAME}
         
         # Zeus 日志模块
         zeus_spdlog
-        
-        # 第三方库
-        Boost::system
-        Boost::thread
-        Boost::filesystem
-        Boost::asio
-        nlohmann_json::nlohmann_json
-        
-    PRIVATE
-        # OpenSSL (通过Zeus网络模块传递)
-        OpenSSL::SSL
-        OpenSSL::Crypto
 )
 
 # 编译选项

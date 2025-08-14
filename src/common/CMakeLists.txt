@@ -84,8 +84,14 @@ if(NOT BUILD_SHARED_LIBS)
     )
 endif()
 
+# 创建别名目标以供示例程序使用
+add_library(zeus_spdlog ALIAS common_spdlog)
+
 # 添加网络模块子目录
 add_subdirectory(network)
+
+# 添加工具模块子目录
+add_subdirectory(utilities)
 
 # 显示编译信息
 message(STATUS "=== Common Library Configuration ===")

@@ -94,12 +94,12 @@ namespace ApplicationUtils {
     /**
      * @brief Get application framework version string
      */
-    const char* GetFrameworkVersion() { return ZeusApplicationVersion::VERSION_STRING; }
+    inline const char* GetFrameworkVersion() { return ZeusApplicationVersion::VERSION_STRING; }
     
     /**
      * @brief Get application framework build type
      */
-    const char* GetBuildType() { return ZeusApplicationVersion::BUILD_TYPE; }
+    inline const char* GetBuildType() { return ZeusApplicationVersion::BUILD_TYPE; }
     
     /**
      * @brief Print framework information to console

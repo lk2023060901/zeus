@@ -712,7 +712,7 @@ void Application::AddFlag(const std::string& short_name, const std::string& long
 }
 
 void Application::AddArgumentWithHandler(const std::string& short_name, const std::string& long_name,
-                                       const std::string& description, ArgumentHandler handler,
+                                       const std::string& description, hooks::ArgumentHandler handler,
                                        bool requires_value) {
     ArgumentDefinition definition;
     definition.short_name = short_name;
@@ -814,12 +814,12 @@ bool Application::HasArgument(const std::string& name) const {
            parsed_args_.values.find(name) != parsed_args_.values.end();
 }
 
-void Application::SetUsageProvider(UsageProvider provider) {
+void Application::SetUsageProvider(hooks::UsageProvider provider) {
     std::lock_guard<std::mutex> lock(args_mutex_);
     arg_parser_config_.usage_provider = provider;
 }
 
-void Application::SetVersionProvider(VersionProvider provider) {
+void Application::SetVersionProvider(hooks::VersionProvider provider) {
     std::lock_guard<std::mutex> lock(args_mutex_);
     arg_parser_config_.version_provider = provider;
 }
@@ -999,7 +999,7 @@ void Application::InitializeDefaultArguments() {
 
 // ========================= ListenEndpoint 实现 =========================
 
-std::optional<ListenEndpoint> ListenEndpoint::Parse(const std::string& str) {
+std::optional<hooks::ListenEndpoint> hooks::ListenEndpoint::Parse(const std::string& str) {
     // 格式: protocol://address:port 或 address:port (默认tcp)
     ListenEndpoint endpoint;
     
@@ -1044,10 +1044,10 @@ std::optional<ListenEndpoint> ListenEndpoint::Parse(const std::string& str) {
 
 // ========================= 命令行配置覆盖实现 =========================
 
-CommandLineOverrides Application::GetCommandLineOverrides() const {
+hooks::CommandLineOverrides Application::GetCommandLineOverrides() const {
     std::lock_guard<std::mutex> lock(args_mutex_);
     
-    CommandLineOverrides overrides;
+    hooks::CommandLineOverrides overrides;
     
     // 注意：当前的parsed_args_.values是map类型，不支持多值
     // 这里需要修改为从实际的多值存储中获取
@@ -1055,7 +1055,7 @@ CommandLineOverrides Application::GetCommandLineOverrides() const {
     
     auto it = parsed_args_.values.find("listen");
     if (it != parsed_args_.values.end()) {
-        auto endpoint = ListenEndpoint::Parse(it->second);
+        auto endpoint = hooks::ListenEndpoint::Parse(it->second);
         if (endpoint) {
             overrides.listen_endpoints.push_back(*endpoint);
         }

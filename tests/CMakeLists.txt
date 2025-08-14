@@ -9,5 +9,10 @@ add_subdirectory(spdlog)
 add_subdirectory(network)
 add_subdirectory(utilities)
 
+# 如果启用了工具构建，添加 lua_binding_generator 测试
+if(BUILD_TOOLS)
+    add_subdirectory(lua_binding_generator)
+endif()
+
 message(STATUS "All test modules have been added")
 message(STATUS "==================================")

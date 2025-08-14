@@ -16,8 +16,7 @@ set_target_properties(basic_structured_logging_example PROPERTIES
 # 链接依赖库
 target_link_libraries(basic_structured_logging_example
     PRIVATE
-        zeus_structured_spdlog
-        zeus_spdlog
+        common_spdlog
         fmt::fmt
         Threads::Threads
 )

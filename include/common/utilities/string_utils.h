@@ -263,6 +263,10 @@ private:
     StringUtils() = default;
     ~StringUtils() = default;
     
+    // 允许Singleton访问私有构造函数和析构函数
+    friend class Singleton<StringUtils>;
+    friend class std::default_delete<StringUtils>;
+    
     // 内部辅助方法
     std::vector<std::pair<std::string, std::string>> GetChinesePunctuationReplacements() const;
 };
@@ -311,6 +315,10 @@ public:
 private:
     ThreadSafeStringUtils() = default;
     ~ThreadSafeStringUtils() = default;
+    
+    // 允许Singleton访问私有构造函数和析构函数
+    friend class Singleton<ThreadSafeStringUtils, ThreadSafeMutex>;
+    friend class std::default_delete<ThreadSafeStringUtils>;
 };
 
 // ============ 模板方法实现 ============

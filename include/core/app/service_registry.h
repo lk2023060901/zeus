@@ -7,6 +7,7 @@
 #include <memory>
 #include <mutex>
 #include <atomic>
+#include <thread>
 
 namespace core {
 namespace app {

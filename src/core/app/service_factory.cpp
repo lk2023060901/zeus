@@ -21,20 +21,14 @@ std::unique_ptr<Service> ServiceFactory::CreateTcpAcceptor(const ListenerConfig&
             }
             
             // 设置连接事件处理器
-            if (options.on_disconnect) {
-                conn->SetDisconnectHandler([options](const std::string& conn_id, boost::system::error_code ec) {
-                    options.on_disconnect(conn_id, ec);
-                });
-            }
-            
             if (options.on_message) {
-                conn->SetMessageHandler([options](const std::string& conn_id, const std::vector<uint8_t>& data) {
+                conn->SetDataHandler([options, conn_id = conn->GetConnectionId()](const std::vector<uint8_t>& data) {
                     options.on_message(conn_id, data);
                 });
             }
             
             if (options.on_error) {
-                conn->SetErrorHandler([options](const std::string& conn_id, boost::system::error_code ec) {
+                conn->SetErrorHandler([options, conn_id = conn->GetConnectionId()](boost::system::error_code ec) {
                     options.on_error(conn_id, ec);
                 });
             }
@@ -55,11 +49,14 @@ std::unique_ptr<Service> ServiceFactory::CreateHttpServer(const ListenerConfig& 
         
         // 注册请求处理器
         if (options.request_handler) {
-            http_server->All(".*", [options](const common::network::http::HttpRequest& req, common::network::http::HttpResponse& resp) {
+            http_server->All(".*", [options](const common::network::http::HttpRequest& req, common::network::http::HttpResponse& resp, std::function<void()> next) {
                 std::string response_body;
-                options.request_handler(req.method, req.path, req.headers, req.body, response_body);
+                // 获取URL路径
+                std::string path = req.GetUrl().path;
+                options.request_handler(common::network::http::HttpUtils::MethodToString(req.GetMethod()), path, req.GetHeaders(), req.GetBody(), response_body);
                 resp.SetBody(response_body);
-                resp.SetStatusCode(200);
+                resp.SetStatusCode(common::network::http::HttpStatusCode::OK);
+                next();
             });
         }
         
@@ -88,11 +85,14 @@ std::unique_ptr<Service> ServiceFactory::CreateHttpsServer(const ListenerConfig&
         
         // 注册请求处理器
         if (options.request_handler) {
-            https_server->All(".*", [options](const common::network::http::HttpRequest& req, common::network::http::HttpResponse& resp) {
+            https_server->All(".*", [options](const common::network::http::HttpRequest& req, common::network::http::HttpResponse& resp, std::function<void()> next) {
                 std::string response_body;
-                options.request_handler(req.method, req.path, req.headers, req.body, response_body);
+                // 获取URL路径
+                std::string path = req.GetUrl().path;
+                options.request_handler(common::network::http::HttpUtils::MethodToString(req.GetMethod()), path, req.GetHeaders(), req.GetBody(), response_body);
                 resp.SetBody(response_body);
-                resp.SetStatusCode(200);
+                resp.SetStatusCode(common::network::http::HttpStatusCode::OK);
+                next();
             });
         }
         
@@ -116,20 +116,14 @@ std::unique_ptr<Service> ServiceFactory::CreateKcpAcceptor(const ListenerConfig&
             }
             
             // 设置连接事件处理器
-            if (options.on_disconnect) {
-                conn->SetDisconnectHandler([options](const std::string& conn_id, boost::system::error_code ec) {
-                    options.on_disconnect(conn_id, ec);
-                });
-            }
-            
             if (options.on_message) {
-                conn->SetMessageHandler([options](const std::string& conn_id, const std::vector<uint8_t>& data) {
+                conn->SetDataHandler([options, conn_id = conn->GetConnectionId()](const std::vector<uint8_t>& data) {
                     options.on_message(conn_id, data);
                 });
             }
             
             if (options.on_error) {
-                conn->SetErrorHandler([options](const std::string& conn_id, boost::system::error_code ec) {
+                conn->SetErrorHandler([options, conn_id = conn->GetConnectionId()](boost::system::error_code ec) {
                     options.on_error(conn_id, ec);
                 });
             }
@@ -315,6 +309,15 @@ const std::string& KcpAcceptorAdapter::GetName() const {
 
 ServiceType KcpAcceptorAdapter::GetType() const {
     return ServiceType::KCP_SERVER;
+}
+
+// Server creation methods - aliases for existing methods
+std::unique_ptr<Service> ServiceFactory::CreateTcpServer(const ListenerConfig& config, const TcpServiceOptions& options) {
+    return CreateTcpAcceptor(config, options);
+}
+
+std::unique_ptr<Service> ServiceFactory::CreateKcpServer(const ListenerConfig& config, const KcpServiceOptions& options) {
+    return CreateKcpAcceptor(config, options);
 }
 
 } // namespace app

@@ -6,6 +6,7 @@
 #include <utility>
 #include <fmt/format.h>
 #include <chrono>
+#include <thread>
 
 namespace common {
 namespace spdlog {
@@ -255,7 +256,7 @@ struct fmt::formatter<common::spdlog::structured::Field<T>> {
     
     // 格式化Field为JSON键值对格式
     template<typename FormatContext>
-    auto format(const common::spdlog::structured::Field<T>& field, FormatContext& ctx) -> decltype(ctx.out()) {
+    auto format(const common::spdlog::structured::Field<T>& field, FormatContext& ctx) const -> decltype(ctx.out()) {
         using FieldType = common::spdlog::structured::FieldType;
         
         // 输出键名（总是使用引号）
@@ -300,7 +301,7 @@ struct fmt::formatter<common::spdlog::structured::FieldContainer<Fields...>> {
     }
     
     template<typename FormatContext>
-    auto format(const common::spdlog::structured::FieldContainer<Fields...>& container, FormatContext& ctx) -> decltype(ctx.out()) {
+    auto format(const common::spdlog::structured::FieldContainer<Fields...>& container, FormatContext& ctx) const -> decltype(ctx.out()) {
         auto out = fmt::format_to(ctx.out(), "{{");
         
         // 使用fold expression展开所有字段

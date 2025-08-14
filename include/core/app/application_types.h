@@ -303,7 +303,7 @@ struct ArgumentDefinition {
     bool requires_value = false; // 是否需要参数值
     bool is_flag = false;      // 是否为标志参数
     std::string default_value; // 默认值
-    ArgumentHandler handler;   // 参数处理器
+    hooks::ArgumentHandler handler;   // 参数处理器
 };
 
 /**
@@ -325,8 +325,8 @@ struct ArgumentParserConfig {
     std::string program_description;             // 程序描述
     std::string program_version = "1.0.0";        // 程序版本
     std::vector<ArgumentDefinition> arguments;   // 参数定义列表
-    UsageProvider usage_provider;               // 自定义用法显示器
-    VersionProvider version_provider;           // 自定义版本显示器
+    hooks::UsageProvider usage_provider;               // 自定义用法显示器
+    hooks::VersionProvider version_provider;           // 自定义版本显示器
     bool auto_add_help = true;                  // 自动添加--help参数
     bool auto_add_version = true;               // 自动添加--version参数
 };
