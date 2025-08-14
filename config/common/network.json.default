@@ -1,0 +1,66 @@
+{
+  "network": {
+    "io_threads": 2,
+    "socket_options": {
+      "tcp_nodelay": true,
+      "socket_buffer_size": 65536,
+      "keep_alive": true,
+      "keep_alive_idle": 600,
+      "keep_alive_interval": 60,
+      "keep_alive_count": 3
+    },
+    "timeouts": {
+      "connect_timeout_ms": 5000,
+      "read_timeout_ms": 30000,
+      "write_timeout_ms": 10000
+    },
+    "limits": {
+      "max_connections_per_thread": 1000,
+      "max_message_size": 1048576,
+      "recv_buffer_size": 8192,
+      "send_buffer_size": 8192
+    }
+  },
+  "protocols": {
+    "tcp": {
+      "enabled": true,
+      "backlog": 128,
+      "reuse_address": true,
+      "reuse_port": false
+    },
+    "kcp": {
+      "enabled": true,
+      "default_config": {
+        "nodelay": 1,
+        "interval": 10,
+        "resend": 2,
+        "nc": 1,
+        "mtu": 1400,
+        "window_size": 128,
+        "min_rto": 100,
+        "fast_resend_limit": 5,
+        "stream_mode": false
+      },
+      "modes": {
+        "fast": {
+          "nodelay": 1,
+          "interval": 5,
+          "resend": 2,
+          "nc": 1
+        },
+        "normal": {
+          "nodelay": 0,
+          "interval": 20,
+          "resend": 0,
+          "nc": 0
+        },
+        "conservative": {
+          "nodelay": 0,
+          "interval": 40,
+          "resend": 0,
+          "nc": 0
+        }
+      }
+    }
+  }
+}

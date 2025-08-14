@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安装说明 - Zeus项目文档</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="../index.html" class="logo">Zeus 项目</a>
+            <ul class="nav-links">
+                <li><a href="index.html">快速开始</a></li>
+                <li><a href="../modules/index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+                <li><a href="../api/index.html">API文档</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>快速开始</h3>
+            <ul class="sidebar-nav">
+                <li><a href="index.html">概览</a></li>
+                <li><a href="tech-stack.html">技术栈</a></li>
+                <li><a href="build-guide.html">构建指南</a></li>
+                <li><a href="installation.html" class="active">安装说明</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Breadcrumbs -->
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span>/</span>
+                <a href="index.html">快速开始</a>
+                <span>/</span>
+                <span>安装说明</span>
+            </nav>
+
+            <h1>安装说明</h1>
+            
+            <p>本指南详细说明如何在生产环境中安装和部署Zeus游戏框架，包括游戏服务器部署、容器化部署和框架集成方案。</p>
+
+            <!-- Installation Options -->
+            <section>
+                <h2>安装方式</h2>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3>🔧 本地编译安装</h3>
+                        <p>推荐方式：从源码编译游戏框架并部署到游戏服务器</p>
+                        <ul>
+                            <li>完全控制编译选项</li>
+                            <li>针对目标系统优化</li>
+                            <li>支持自定义安装路径</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>📦 预编译包</h3>
+                        <p>快速部署：使用预编译的二进制包</p>
+                        <ul>
+                            <li>快速安装部署</li>
+                            <li>标准化配置</li>
+                            <li>适合批量部署</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>🐳 容器部署</h3>
+                        <p>现代化部署：使用Docker容器</p>
+                        <ul>
+                            <li>环境隔离</li>
+                            <li>轻松扩展</li>
+                            <li>一致性部署</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>📚 框架集成</h3>
+                        <p>游戏开发：将Zeus作为游戏基础框架使用</p>
+                        <ul>
+                            <li>CMake游戏项目集成</li>
+                            <li>游戏模块化开发支持</li>
+                            <li>游戏核心库和头文件</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Source Installation -->
+            <section>
+                <h2>源码编译安装</h2>
+                
+                <div class="card">
+                    <h3>标准安装流程</h3>
+                    <pre><code># 1. 获取源码
+git clone &lt;repository-url&gt; zeus
+cd zeus
+
+# 2. 创建构建目录
+mkdir build && cd build
+
+# 3. 配置安装 (生产环境推荐静态库)
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DBUILD_TESTS=OFF \
+  -DCMAKE_INSTALL_PREFIX=/usr/local
+
+# 4. 编译项目
+make -j$(nproc)
+
+# 5. 运行测试 (可选)
+make test
+
+# 6. 安装到系统
+sudo make install</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>自定义安装路径</h3>
+                    <pre><code># 安装到指定目录
+cmake .. \
+  -DCMAKE_INSTALL_PREFIX=/opt/zeus \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DBUILD_TESTS=OFF
+
+make -j$(nproc)
+sudo make install
+
+# 验证安装
+ls -la /opt/zeus/</code></pre>
+                    
+                    <div class="alert alert-info">
+                        <strong>安装目录结构：</strong>
+                        <pre><code>/opt/zeus/
+├── include/common/spdlog/    # 头文件
+├── lib/                      # 库文件
+├── bin/                      # 可执行文件 (如果BUILD_TESTS=ON)
+└── share/zeus/              # 配置和文档</code></pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>动态库安装</h3>
+                    <p>如果需要动态库，可以使用以下配置：</p>
+                    <pre><code># 构建动态库
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS=ON \
+  -DBUILD_TESTS=OFF \
+  -DCMAKE_INSTALL_PREFIX=/usr/local
+
+make -j$(nproc)
+sudo make install
+
+# 更新动态库缓存
+sudo ldconfig</code></pre>
+                </div>
+            </section>
+
+            <!-- Package Installation -->
+            <section>
+                <h2>预编译包安装</h2>
+                
+                <div class="card">
+                    <h3>创建安装包</h3>
+                    <p>首先需要创建预编译包：</p>
+                    <pre><code># 构建Release版本
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF
+make -j$(nproc)
+
+# 创建安装包
+make package
+
+# 生成的包文件
+ls -la *.tar.gz *.deb *.rpm</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>Ubuntu/Debian安装</h3>
+                    <pre><code># 安装deb包
+sudo dpkg -i zeus-1.0.0-Linux.deb
+
+# 解决依赖问题 (如果有)
+sudo apt-get install -f
+
+# 验证安装
+dpkg -l | grep zeus</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>CentOS/RHEL安装</h3>
+                    <pre><code># 安装rpm包
+sudo rpm -ivh zeus-1.0.0-Linux.rpm
+
+# 或使用yum/dnf
+sudo yum localinstall zeus-1.0.0-Linux.rpm
+
+# 验证安装
+rpm -qa | grep zeus</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>通用tar.gz包</h3>
+                    <pre><code># 解压到目标目录
+sudo tar -xzf zeus-1.0.0-Linux.tar.gz -C /opt/
+
+# 创建符号链接 (可选)
+sudo ln -s /opt/zeus/bin/* /usr/local/bin/
+sudo ln -s /opt/zeus/lib/* /usr/local/lib/
+sudo ln -s /opt/zeus/include/* /usr/local/include/
+
+# 更新动态库缓存
+sudo ldconfig</code></pre>
+                </div>
+            </section>
+
+            <!-- Container Deployment -->
+            <section>
+                <h2>容器部署</h2>
+                
+                <div class="card">
+                    <h3>创建Docker镜像</h3>
+                    <p>创建Dockerfile：</p>
+                    <pre><code># Dockerfile
+FROM ubuntu:20.04
+
+# 安装依赖
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制源码
+COPY . /opt/zeus
+WORKDIR /opt/zeus
+
+# 构建项目
+RUN mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF && \
+    make -j$(nproc) && \
+    make install
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制配置文件
+COPY configs/log_config.json /app/
+
+# 运行时用户
+RUN useradd -m -s /bin/bash zeus
+USER zeus
+
+# 默认命令
+CMD ["/bin/bash"]</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>构建和运行容器</h3>
+                    <pre><code># 构建镜像
+docker build -t zeus:latest .
+
+# 运行容器
+docker run -it --name zeus-app \
+  -v $(pwd)/logs:/app/logs \
+  -v $(pwd)/configs:/app/configs \
+  zeus:latest
+
+# 在容器中运行测试
+docker exec zeus-app /usr/local/bin/zeus_test_basic</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>Docker Compose部署</h3>
+                    <p>创建docker-compose.yml：</p>
+                    <pre><code>version: '3.8'
+
+services:
+  zeus-app:
+    build: .
+    container_name: zeus-application
+    volumes:
+      - ./logs:/app/logs
+      - ./configs:/app/configs
+    environment:
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    
+  # 可选：日志监控服务
+  log-monitor:
+    image: grafana/loki:latest
+    container_name: zeus-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./logs:/var/log/zeus:ro</code></pre>
+                    
+                    <pre><code># 启动服务
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f zeus-app</code></pre>
+                </div>
+            </section>
+
+            <!-- Library Integration -->
+            <section>
+                <h2>库集成</h2>
+                
+                <div class="card">
+                    <h3>CMake集成</h3>
+                    <p>在其他CMake项目中使用Zeus：</p>
+                    <pre><code># 查找Zeus包
+find_package(Zeus REQUIRED)
+
+# 创建目标并链接
+add_executable(my_app main.cpp)
+target_link_libraries(my_app Zeus::common_spdlog)
+
+# 或者作为子项目
+add_subdirectory(third_party/zeus)
+target_link_libraries(my_app common_spdlog)</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>pkg-config集成</h3>
+                    <pre><code># 查找Zeus库
+pkg-config --cflags --libs zeus
+
+# 在Makefile中使用
+CFLAGS += $(shell pkg-config --cflags zeus)
+LDFLAGS += $(shell pkg-config --libs zeus)
+
+# 编译示例
+g++ -o my_app main.cpp $(shell pkg-config --cflags --libs zeus)</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>手动链接</h3>
+                    <pre><code># 编译时指定路径
+g++ -o my_app main.cpp \
+  -I/usr/local/include \
+  -L/usr/local/lib \
+  -lcommon_spdlog \
+  -lspdlog \
+  -lfmt</code></pre>
+                </div>
+            </section>
+
+            <!-- Configuration -->
+            <section>
+                <h2>配置管理</h2>
+                
+                <div class="card">
+                    <h3>系统级配置</h3>
+                    <p>将配置文件放置在标准位置：</p>
+                    <pre><code># 创建配置目录
+sudo mkdir -p /etc/zeus
+sudo mkdir -p /var/log/zeus
+
+# 复制默认配置
+sudo cp configs/log_config.json /etc/zeus/
+
+# 设置权限
+sudo chown -R zeus:zeus /var/log/zeus
+sudo chmod 755 /etc/zeus
+sudo chmod 644 /etc/zeus/log_config.json</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>环境变量配置</h3>
+                    <pre><code># 设置环境变量
+export ZEUS_CONFIG_PATH=/etc/zeus/log_config.json
+export ZEUS_LOG_DIR=/var/log/zeus
+
+# 添加到系统配置
+echo 'export ZEUS_CONFIG_PATH=/etc/zeus/log_config.json' >> /etc/environment
+echo 'export ZEUS_LOG_DIR=/var/log/zeus' >> /etc/environment</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>配置文件示例</h3>
+                    <pre><code>{
+  "loggers": [
+    {
+      "name": "system",
+      "level": "info",
+      "rotation_type": "daily",
+      "file_path": "/var/log/zeus/system.log",
+      "max_files": 30,
+      "console_output": false
+    },
+    {
+      "name": "application",
+      "level": "debug",
+      "rotation_type": "hourly", 
+      "file_path": "/var/log/zeus/app.log",
+      "max_files": 168,
+      "console_output": true
+    }
+  ]
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Verification -->
+            <section>
+                <h2>安装验证</h2>
+                
+                <div class="card">
+                    <h3>验证安装</h3>
+                    <pre><code># 检查库文件
+ls -la /usr/local/lib/libcommon_spdlog*
+
+# 检查头文件
+ls -la /usr/local/include/common/spdlog/
+
+# 检查可执行文件 (如果安装了测试程序)
+ls -la /usr/local/bin/zeus_*
+
+# 测试库链接
+echo '#include "common/spdlog/zeus_log_manager.h"
+int main() { return 0; }' > test.cpp
+
+g++ -o test test.cpp -lcommon_spdlog && echo "安装成功！"</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>运行时测试</h3>
+                    <pre><code># 创建简单测试程序
+cat > verification_test.cpp << 'EOF'
+#include "common/spdlog/zeus_log_manager.h"
+#include <iostream>
+
+int main() {
+    using namespace common::spdlog;
+    
+    if (!ZeusLogManager::Instance().Initialize()) {
+        std::cerr << "日志初始化失败" << std::endl;
+        return 1;
+    }
+    
+    auto logger = ZeusLogManager::Instance().GetLogger("test");
+    logger->info("Zeus安装验证成功！");
+    
+    std::cout << "验证完成 - 检查日志文件" << std::endl;
+    return 0;
+}
+EOF
+
+# 编译和运行
+g++ -o verification_test verification_test.cpp -lcommon_spdlog
+./verification_test</code></pre>
+                </div>
+            </section>
+
+            <!-- Uninstallation -->
+            <section>
+                <h2>卸载</h2>
+                
+                <div class="card">
+                    <h3>源码安装卸载</h3>
+                    <pre><code># 如果有安装清单
+sudo make uninstall
+
+# 手动卸载
+sudo rm -rf /usr/local/include/common/spdlog
+sudo rm -f /usr/local/lib/libcommon_spdlog*
+sudo rm -f /usr/local/bin/zeus_*
+
+# 清理配置文件 (可选)
+sudo rm -rf /etc/zeus
+sudo rm -rf /var/log/zeus</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>包管理器卸载</h3>
+                    <pre><code># Ubuntu/Debian
+sudo apt-get remove zeus
+sudo apt-get purge zeus  # 包含配置文件
+
+# CentOS/RHEL
+sudo yum remove zeus
+# 或
+sudo dnf remove zeus</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>容器清理</h3>
+                    <pre><code># 停止并删除容器
+docker stop zeus-app
+docker rm zeus-app
+
+# 删除镜像
+docker rmi zeus:latest
+
+# Docker Compose清理
+docker-compose down
+docker-compose down --volumes  # 包含数据卷</code></pre>
+                </div>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section>
+                <h2>安装问题排查</h2>
+                
+                <div class="card">
+                    <h3>权限问题</h3>
+                    <div class="alert alert-warning">
+                        <strong>问题：</strong> <code>Permission denied</code>
+                    </div>
+                    <p><strong>解决方案：</strong></p>
+                    <ul>
+                        <li>确保有sudo权限：<code>sudo make install</code></li>
+                        <li>检查目标目录权限：<code>ls -la /usr/local/</code></li>
+                        <li>修改安装路径到用户目录：<code>-DCMAKE_INSTALL_PREFIX=$HOME/zeus</code></li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>依赖问题</h3>
+                    <div class="alert alert-warning">
+                        <strong>问题：</strong> <code>libcommon_spdlog.so: cannot open shared object file</code>
+                    </div>
+                    <p><strong>解决方案：</strong></p>
+                    <pre><code># 更新动态库缓存
+sudo ldconfig
+
+# 或添加库路径到环境变量
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# 永久添加
+echo '/usr/local/lib' | sudo tee /etc/ld.so.conf.d/zeus.conf
+sudo ldconfig</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>版本冲突</h3>
+                    <div class="alert alert-warning">
+                        <strong>问题：</strong> 多个版本Zeus共存导致冲突
+                    </div>
+                    <p><strong>解决方案：</strong></p>
+                    <ul>
+                        <li>使用不同的安装前缀</li>
+                        <li>通过环境变量控制版本选择</li>
+                        <li>使用容器隔离不同版本</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                <a href="build-guide.html" class="btn btn-secondary">← 构建指南</a>
+                <a href="../modules/index.html" class="btn">模块文档 →</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <p>&copy; 2025 Zeus项目. 基于C++17开发的大型MMORPG游戏框架，支持分布式部署。</p>
+            </div>
+            <ul class="footer-nav">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="index.html">快速开始</a></li>
+                <li><a href="../modules/index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeus项目文档</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo">Zeus 项目</a>
+            <ul class="nav-links">
+                <li><a href="getting-started/index.html">快速开始</a></li>
+                <li><a href="modules/index.html">模块文档</a></li>
+                <li><a href="development/index.html">开发指南</a></li>
+                <li><a href="api/index.html">API文档</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <h1>Zeus C++项目文档</h1>
+        
+        <div class="alert alert-info">
+            <strong>欢迎使用Zeus项目！</strong> 这是一个基于C++17开发的大型MMORPG游戏框架，支持分布式部署，采用模块化架构设计。
+        </div>
+
+        <!-- Project Overview -->
+        <section>
+            <h2>项目概览</h2>
+            <p>Zeus是一个现代化的C++游戏框架，专为大型MMORPG开发而设计。框架采用分布式架构，支持高并发、低延迟的游戏服务，提供完整的游戏基础设施，包括网络通信、数据存储、日志系统等核心模块。</p>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🚀 分布式架构</h3>
+                    <p>支持分布式部署的游戏服务器架构，提供高可用性、水平扩展能力，满足大型MMORPG的性能需求。</p>
+                </div>
+                <div class="card">
+                    <h3>🔧 模块化设计</h3>
+                    <p>游戏框架采用模块化设计，包含网络、数据库、日志、配置等独立模块，支持灵活的功能组合和扩展。</p>
+                </div>
+                <div class="card">
+                    <h3>🧪 完善测试</h3>
+                    <p>提供完整的测试体系，包括单元测试、集成测试、压力测试等，确保游戏框架的稳定性和性能。</p>
+                </div>
+                <div class="card">
+                    <h3>📦 灵活部署</h3>
+                    <p>支持容器化部署、微服务架构，提供灵活的配置选项，适应不同规模的游戏服务需求。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section>
+            <h2>快速开始</h2>
+            <p>开始使用Zeus游戏框架非常简单，只需要几个步骤：</p>
+            
+            <div class="alert alert-success">
+                <h4>基本构建步骤</h4>
+                <pre><code># 创建构建目录
+mkdir build && cd build
+
+# 配置游戏框架（静态库模式）
+cmake .. -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTS=ON
+
+# 编译框架
+make
+
+# 运行基础测试
+./bin/zeus_test_basic</code></pre>
+            </div>
+
+            <p>
+                <a href="getting-started/build-guide.html" class="btn">查看详细构建指南</a>
+                <a href="getting-started/tech-stack.html" class="btn btn-secondary">了解技术栈</a>
+            </p>
+        </section>
+
+        <!-- Tech Stack -->
+        <section>
+            <h2>技术栈</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>核心技术</h3>
+                    <ul>
+                        <li><strong>C++17</strong> - 现代C++标准</li>
+                        <li><strong>CMake 3.16+</strong> - 跨平台构建系统</li>
+                        <li><strong>模块化架构</strong> - 独立可维护的组件设计</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>第三方库</h3>
+                    <ul>
+                        <li><strong>spdlog 1.15.3</strong> - 高性能日志系统</li>
+                        <li><strong>nlohmann/json 3.12.0</strong> - 配置和数据处理</li>
+                        <li><strong>Boost 1.88.0</strong> - 网络和系统库支持</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Structure -->
+        <section>
+            <h2>项目结构</h2>
+            <pre><code>zeus/
+├── CMakeLists.txt          # 主框架配置
+├── include/common/spdlog/   # 日志模块头文件
+├── src/common/             # 基础模块源代码
+│   ├── CMakeLists.txt      # 基础模块配置
+│   └── spdlog/            # 日志模块实现
+├── tests/                  # 测试模块
+│   ├── CMakeLists.txt      # 测试管理
+│   ├── basic/             # 基础功能测试
+│   ├── spdlog_basic/      # 日志模块测试
+│   ├── spdlog_performance/ # 性能基准测试
+│   ├── spdlog_config/     # 配置系统测试
+│   └── spdlog_multithread/ # 并发测试
+├── docs/                  # 框架文档
+├── cmake/modules/         # 构建模块
+└── thirdparty/           # 第三方依赖</code></pre>
+        </section>
+
+        <!-- Features -->
+        <section>
+            <h2>主要特性</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>特性</th>
+                        <th>描述</th>
+                        <th>配置选项</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>静态/动态库</td>
+                        <td>支持静态库和动态库两种编译模式</td>
+                        <td><code>BUILD_SHARED_LIBS=ON/OFF</code></td>
+                    </tr>
+                    <tr>
+                        <td>测试控制</td>
+                        <td>可选择性编译测试用例</td>
+                        <td><code>BUILD_TESTS=ON/OFF</code></td>
+                    </tr>
+                    <tr>
+                        <td>日志系统</td>
+                        <td>高性能日志记录，支持分布式日志收集</td>
+                        <td>配置文件控制</td>
+                    </tr>
+                    <tr>
+                        <td>并发处理</td>
+                        <td>高并发游戏逻辑处理，支持多线程安全</td>
+                        <td>框架内置</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Getting Started -->
+        <section>
+            <h2>开始探索</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>📚 快速开始</h3>
+                    <p>了解游戏框架技术栈，学习如何构建和运行框架。</p>
+                    <a href="getting-started/index.html" class="btn">开始学习</a>
+                </div>
+                <div class="card">
+                    <h3>🧩 模块文档</h3>
+                    <p>详细了解游戏框架各个模块的功能和使用方法。</p>
+                    <a href="modules/index.html" class="btn">查看模块</a>
+                </div>
+                <div class="card">
+                    <h3>🛠️ 开发指南</h3>
+                    <p>学习游戏框架结构，了解开发规范和贡献指南。</p>
+                    <a href="development/index.html" class="btn">开发指南</a>
+                </div>
+                <div class="card">
+                    <h3>📖 API文档</h3>
+                    <p>查看详细的API参考文档和使用示例。</p>
+                    <a href="api/index.html" class="btn">API参考</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <p>&copy; 2025 Zeus项目. 基于C++17开发的大型MMORPG游戏框架，支持分布式部署。</p>
+            </div>
+            <ul class="footer-nav">
+                <li><a href="getting-started/index.html">快速开始</a></li>
+                <li><a href="modules/index.html">模块文档</a></li>
+                <li><a href="development/index.html">开发指南</a></li>
+                <li><a href="api/index.html">API文档</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

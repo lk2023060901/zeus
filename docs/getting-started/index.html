@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速开始 - Zeus项目文档</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="../index.html" class="logo">Zeus 项目</a>
+            <ul class="nav-links">
+                <li><a href="index.html">快速开始</a></li>
+                <li><a href="../modules/index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+                <li><a href="../api/index.html">API文档</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>快速开始</h3>
+            <ul class="sidebar-nav">
+                <li><a href="index.html" class="active">概览</a></li>
+                <li><a href="tech-stack.html">技术栈</a></li>
+                <li><a href="build-guide.html">构建指南</a></li>
+                <li><a href="installation.html">安装说明</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Breadcrumbs -->
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span>/</span>
+                <span>快速开始</span>
+            </nav>
+
+            <h1>快速开始</h1>
+            
+            <p>欢迎使用Zeus游戏框架！本指南将帮助您快速了解框架并开始游戏开发。Zeus是一个基于C++17开发的大型MMORPG游戏框架，支持分布式部署，采用模块化架构设计。</p>
+
+            <!-- Overview -->
+            <section>
+                <h2>项目概览</h2>
+                
+                <div class="alert alert-info">
+                    <strong>Zeus游戏框架特点:</strong> 分布式架构、高并发处理、模块化设计、完整的游戏基础设施
+                </div>
+
+                <div class="grid">
+                    <div class="card">
+                        <h3>🚀 5分钟快速上手</h3>
+                        <p>从下载到运行，只需要5分钟即可搭建基本Zeus游戏框架环境。</p>
+                        <pre><code>mkdir build && cd build
+cmake .. && make
+./bin/zeus_test_basic</code></pre>
+                    </div>
+                    <div class="card">
+                        <h3>📋 前置要求</h3>
+                        <ul>
+                            <li>C++17兼容编译器</li>
+                            <li>CMake 3.16+</li>
+                            <li>2GB+ RAM</li>
+                            <li>1GB+ 磁盘空间</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Setup -->
+            <section>
+                <h2>快速设置</h2>
+                
+                <div class="card">
+                    <h3>步骤1: 检查环境</h3>
+                    <p>确保您的系统满足基本要求：</p>
+                    <pre><code># 检查编译器版本
+gcc --version    # 需要 GCC 8+
+clang --version  # 需要 Clang 6+
+
+# 检查CMake版本
+cmake --version  # 需要 3.16+</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>步骤2: 获取项目</h3>
+                    <pre><code># 如果使用Git
+git clone &lt;repository-url&gt; zeus
+cd zeus
+
+# 或下载并解压源码包
+unzip zeus-project.zip && cd zeus</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>步骤3: 构建项目</h3>
+                    <pre><code># 创建构建目录
+mkdir build && cd build
+
+# 配置项目 (默认静态库模式)
+cmake ..
+
+# 编译项目
+make -j$(nproc)  # Linux/macOS
+# 或
+cmake --build . --parallel  # 跨平台方式</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>步骤4: 运行测试</h3>
+                    <pre><code># 运行基础测试
+cd bin
+./zeus_test_basic
+
+# 查看生成的日志
+ls -la logs/</code></pre>
+                    
+                    <div class="alert alert-success">
+                        <strong>成功运行输出示例:</strong>
+                        <pre><code>[2025-08-12 10:08:49.845] [game] [info] Zeus游戏框架基础测试 - 日志系统正常工作
+[2025-08-12 10:08:49.845] [game] [warning] 这是一个警告消息
+[2025-08-12 10:08:49.845] [game] [error] 这是一个错误消息
+Zeus框架基础测试完成 - 检查logs目录下的日志文件</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Build Options -->
+            <section>
+                <h2>CMake构建选项详解</h2>
+                
+                <div class="alert alert-info">
+                    <strong>CMake默认配置:</strong> 默认不编译tests工程 (BUILD_TESTS=OFF)，使用动态库 (BUILD_SHARED_LIBS=ON)
+                </div>
+
+                <div class="card">
+                    <h3>核心构建参数</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>参数</th>
+                                <th>默认值</th>
+                                <th>可选值</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>BUILD_TESTS</code></td>
+                                <td><strong>OFF</strong></td>
+                                <td>ON / OFF</td>
+                                <td>控制是否编译测试程序</td>
+                            </tr>
+                            <tr>
+                                <td><code>BUILD_SHARED_LIBS</code></td>
+                                <td><strong>ON</strong></td>
+                                <td>ON / OFF</td>
+                                <td>控制生成静态库还是动态库</td>
+                            </tr>
+                            <tr>
+                                <td><code>CMAKE_BUILD_TYPE</code></td>
+                                <td>Release</td>
+                                <td>Debug / Release / RelWithDebInfo / MinSizeRel</td>
+                                <td>构建类型和优化级别</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>常用构建组合</h3>
+                    
+                    <h4>1. 生产模式 (默认)</h4>
+                    <pre><code># 默认配置: 动态库，不编译测试
+cmake ..
+# 等同于:
+cmake .. -DBUILD_TESTS=OFF -DBUILD_SHARED_LIBS=ON</code></pre>
+                    <ul>
+                        <li>✅ 不编译测试程序，编译速度快</li>
+                        <li>✅ 生成动态库，节省磁盘空间</li>
+                        <li>✅ 适合生产部署和集成开发</li>
+                    </ul>
+
+                    <h4>2. 开发测试模式</h4>
+                    <pre><code># 开发模式: 包含测试程序
+cmake .. -DBUILD_TESTS=ON</code></pre>
+                    <ul>
+                        <li>✅ 编译所有测试程序，方便功能验证</li>
+                        <li>✅ 保持动态库默认设置</li>
+                        <li>✅ 适合本地开发和调试</li>
+                    </ul>
+
+                    <h4>3. 静态库部署模式</h4>
+                    <pre><code># 静态库: 部署简单，无运行时依赖
+cmake .. -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release</code></pre>
+                    <ul>
+                        <li>✅ 生成静态库，部署简单</li>
+                        <li>✅ 无运行时库依赖</li>
+                        <li>✅ Release优化，性能最佳</li>
+                    </ul>
+
+                    <h4>4. 调试模式</h4>
+                    <pre><code># 调试模式: 包含调试信息，包含测试
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON</code></pre>
+                    <ul>
+                        <li>✅ 包含完整的调试符号</li>
+                        <li>✅ 包含测试程序便于调试</li>
+                        <li>⚠️ 性能较低，仅用于开发</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>构建结果说明</h3>
+                    
+                    <h4>默认构建 (BUILD_TESTS=OFF, BUILD_SHARED_LIBS=ON)</h4>
+                    <pre><code>build/
+└── lib/
+    ├── libcommon_spdlog.so     # Linux 动态库
+    ├── libcommon_spdlog.dylib  # macOS 动态库
+    └── libcommon_spdlog.dll    # Windows 动态库</code></pre>
+
+                    <h4>开发测试构建 (BUILD_TESTS=ON, BUILD_SHARED_LIBS=ON)</h4>
+                    <pre><code>build/
+├── lib/
+│   ├── libcommon_spdlog.so     # Linux 动态库
+│   ├── libcommon_spdlog.dylib  # macOS 动态库
+│   └── libcommon_spdlog.dll    # Windows 动态库
+└── bin/                        # 测试程序目录
+    ├── zeus_test_basic         # 框架基础测试
+    ├── test_zeus_log          # 日志模块测试
+    ├── test_spdlog_performance # 性能基准测试
+    ├── test_spdlog_config     # 配置系统测试
+    ├── test_spdlog_multithread # 并发处理测试
+    └── log_config.json        # 日志配置文件</code></pre>
+
+                    <h4>静态库构建 (BUILD_SHARED_LIBS=OFF)</h4>
+                    <pre><code>build/
+└── lib/
+    └── libcommon_spdlog.a      # 静态库文件</code></pre>
+
+                    <div class="alert alert-warning">
+                        <strong>注意:</strong> 动态库模式下，运行程序时需要确保系统能找到.so/.dylib/.dll文件。
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>完整构建流程示例</h3>
+                    
+                    <h4>基本开发流程</h4>
+                    <pre><code># 1. 创建构建目录
+mkdir build && cd build
+
+# 2. 配置项目 (使用默认设置)
+cmake ..
+
+# 3. 查看配置信息
+# CMake会输出类似信息:
+# -- === Zeus Project Configuration ===
+# -- Build type: 
+# -- Library type: STATIC
+# -- C++ Standard: 17
+# -- Build Tests: ON
+# -- ===================================
+
+# 4. 编译项目
+make -j$(nproc)  # Linux/macOS
+# 或
+cmake --build . --parallel  # 跨平台
+
+# 5. 运行测试
+cd bin
+./zeus_test_basic</code></pre>
+
+                    <h4>生产环境构建</h4>
+                    <pre><code># 生产环境优化构建
+mkdir release_build && cd release_build
+
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_TESTS=OFF \
+  -DBUILD_SHARED_LIBS=OFF
+
+make -j$(nproc)
+
+# 结果: 只生成 lib/libcommon_spdlog.a</code></pre>
+                </div>
+                
+                <div class="card">
+                    <h3>CMake编译命令对照表</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>需求</th>
+                                <th>CMake配置命令</th>
+                                <th>适用场景</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>开发测试</td>
+                                <td><code>cmake ..</code></td>
+                                <td>日常开发，功能测试</td>
+                            </tr>
+                            <tr>
+                                <td>仅构建库</td>
+                                <td><code>cmake .. -DBUILD_TESTS=OFF</code></td>
+                                <td>生产部署，集成开发</td>
+                            </tr>
+                            <tr>
+                                <td>动态库开发</td>
+                                <td><code>cmake .. -DBUILD_SHARED_LIBS=ON</code></td>
+                                <td>快速编译，内存优化</td>
+                            </tr>
+                            <tr>
+                                <td>调试模式</td>
+                                <td><code>cmake .. -DCMAKE_BUILD_TYPE=Debug</code></td>
+                                <td>问题诊断，性能分析</td>
+                            </tr>
+                            <tr>
+                                <td>性能优化</td>
+                                <td><code>cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF</code></td>
+                                <td>生产环境，最佳性能</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>快速参考: CMake参数组合</h3>
+                    
+                    <div class="alert alert-success">
+                        <strong>推荐组合:</strong>
+                        <ul>
+                            <li><strong>日常开发:</strong> <code>cmake ..</code> (默认)</li>
+                            <li><strong>生产部署:</strong> <code>cmake .. -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release</code></li>
+                            <li><strong>快速调试:</strong> <code>cmake .. -DCMAKE_BUILD_TYPE=Debug</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Basic Usage -->
+            <section>
+                <h2>基本使用</h2>
+                
+                <div class="card">
+                    <h3>简单日志记录</h3>
+                    <pre><code>#include "common/spdlog/zeus_log_manager.h"
+
+int main() {
+    using namespace common::spdlog;
+    
+    // 初始化游戏框架日志系统
+    if (!ZeusLogManager::Instance().Initialize("log_config.json")) {
+        std::cerr << "游戏框架初始化失败" << std::endl;
+        return 1;
+    }
+    
+    // 获取游戏日志器
+    auto logger = ZeusLogManager::Instance().GetLogger("game");
+    
+    // 记录游戏事件日志
+    logger->info("游戏服务器启动");
+    logger->warn("玩家连接超时警告");
+    logger->error("数据库连接失败");
+    
+    return 0;
+}</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>配置文件示例</h3>
+                    <pre><code>{
+  "loggers": [
+    {
+      "name": "game",
+      "level": "info",
+      "rotation_type": "daily",
+      "file_path": "logs/game.log",
+      "max_files": 30
+    },
+    {
+      "name": "network",
+      "level": "debug", 
+      "rotation_type": "hourly",
+      "file_path": "logs/network.log",
+      "max_files": 72
+    }
+  ]
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Testing -->
+            <section>
+                <h2>运行测试</h2>
+                
+                <div class="card">
+                    <h3>测试程序说明</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>测试程序</th>
+                                <th>测试内容</th>
+                                <th>用途</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>zeus_test_basic</code></td>
+                                <td>框架基础功能测试</td>
+                                <td>验证游戏框架基本功能</td>
+                            </tr>
+                            <tr>
+                                <td><code>test_zeus_log</code></td>
+                                <td>日志模块测试</td>
+                                <td>测试游戏事件日志记录</td>
+                            </tr>
+                            <tr>
+                                <td><code>test_spdlog_performance</code></td>
+                                <td>性能基准测试</td>
+                                <td>评估游戏框架性能表现</td>
+                            </tr>
+                            <tr>
+                                <td><code>test_spdlog_config</code></td>
+                                <td>配置功能测试</td>
+                                <td>验证配置文件解析</td>
+                            </tr>
+                            <tr>
+                                <td><code>test_spdlog_multithread</code></td>
+                                <td>并发处理测试</td>
+                                <td>验证游戏高并发处理能力</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>运行所有测试</h3>
+                    <pre><code># 进入bin目录
+cd bin
+
+# 运行各个测试程序
+for test in zeus_test_basic test_zeus_log test_spdlog_performance test_spdlog_config test_spdlog_multithread; do
+    echo "运行 $test..."
+    ./$test
+    echo "---"
+done</code></pre>
+                </div>
+            </section>
+
+            <!-- Next Steps -->
+            <section>
+                <h2>下一步</h2>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3>📚 深入了解</h3>
+                        <p>学习Zeus游戏框架的技术栈和架构设计。</p>
+                        <a href="tech-stack.html" class="btn">查看技术栈</a>
+                    </div>
+                    <div class="card">
+                        <h3>🔧 详细构建</h3>
+                        <p>了解游戏框架构建选项和高级配置。</p>
+                        <a href="build-guide.html" class="btn">构建指南</a>
+                    </div>
+                    <div class="card">
+                        <h3>📦 安装部署</h3>
+                        <p>学习如何在生产环境中安装和部署。</p>
+                        <a href="installation.html" class="btn">安装说明</a>
+                    </div>
+                    <div class="card">
+                        <h3>🧩 模块详解</h3>
+                        <p>深入了解游戏框架各模块的功能和使用方法。</p>
+                        <a href="../modules/index.html" class="btn">模块文档</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section>
+                <h2>常见问题</h2>
+                
+                <div class="card">
+                    <h3>编译失败</h3>
+                    <div class="alert alert-warning">
+                        <strong>问题:</strong> 编译器不支持C++17特性
+                    </div>
+                    <p><strong>解决方案:</strong> 升级编译器到完整支持C++17的版本</p>
+                    <ul>
+                        <li>Linux: <code>sudo apt-get install gcc-8 g++-8</code> 或更新版本</li>
+                        <li>macOS: 更新Xcode Command Line Tools（需要Clang 6+）</li>
+                        <li>Windows: 安装Visual Studio 2017 15.7或更新版本</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>运行时找不到配置文件</h3>
+                    <div class="alert alert-warning">
+                        <strong>问题:</strong> <code>Failed to open log config file</code>
+                    </div>
+                    <p><strong>解决方案:</strong> 确保配置文件在正确位置</p>
+                    <pre><code># 检查配置文件
+ls -la bin/log_config.json
+
+# 如果不存在，从源码复制
+cp ../tests/spdlog/log_config.json bin/</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>获取更多帮助</h3>
+                    <p>如果遇到其他问题，可以：</p>
+                    <ul>
+                        <li>查看 <a href="build-guide.html">详细构建指南</a></li>
+                        <li>阅读 <a href="../development/index.html">开发指南</a></li>
+                        <li>参考 <a href="../api/index.html">API文档</a></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                <a href="../index.html" class="btn btn-secondary">← 返回首页</a>
+                <a href="tech-stack.html" class="btn">技术栈 →</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <p>&copy; 2025 Zeus项目. 基于C++17开发的大型MMORPG游戏框架，支持分布式部署。</p>
+            </div>
+            <ul class="footer-nav">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="index.html">快速开始</a></li>
+                <li><a href="../modules/index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

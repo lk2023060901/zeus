@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块文档 - Zeus项目文档</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="../index.html" class="logo">Zeus 项目</a>
+            <ul class="nav-links">
+                <li><a href="../getting-started/index.html">快速开始</a></li>
+                <li><a href="index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+                <li><a href="../api/index.html">API文档</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>模块文档</h3>
+            <ul class="sidebar-nav">
+                <li><a href="index.html" class="active">概览</a></li>
+                <li><a href="common-spdlog.html">common::spdlog</a></li>
+                <li><a href="log-manager.html">日志管理器</a></li>
+                <li><a href="configuration.html">配置系统</a></li>
+                <li><a href="testing.html">测试模块</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Breadcrumbs -->
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span>/</span>
+                <span>模块文档</span>
+            </nav>
+
+            <h1>模块文档</h1>
+            
+            <p>Zeus游戏框架采用模块化架构设计，每个模块都有明确的职责和清晰的接口。本文档详细介绍游戏框架各个模块的功能、API和使用方法。</p>
+
+            <!-- Architecture Overview -->
+            <section>
+                <h2>架构概览</h2>
+                
+                <div class="card">
+                    <h3>模块层次结构</h3>
+                    <pre><code>游戏应用层 (Game Applications)
+    ├── game_server/           # 游戏服务器程序
+    ├── tests/                 # 游戏功能测试
+    └── examples/             # 游戏示例程序
+                ↓
+游戏逻辑层 (Game Logic Layer)  
+    ├── game_world/           # 游戏世界管理
+    ├── player_manager/       # 玩家管理系统
+    └── combat_system/        # 战斗系统
+                ↓
+框架服务层 (Framework Services)
+    ├── network/              # 网络通信模块
+    ├── database/             # 数据存储模块
+    ├── common/spdlog/        # 日志模块
+    └── config/               # 配置管理模块
+                ↓
+基础设施层 (Infrastructure)
+    ├── spdlog-1.15.3         # 高性能日志库
+    ├── nlohmann-json-3.12.0  # JSON数据处理
+    └── boost-1.88.0          # 网络和系统库</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>模块依赖关系</h3>
+                    <div class="alert alert-info">
+                        <strong>依赖原则：</strong> 上层模块依赖下层模块，下层模块不依赖上层模块，同层模块之间保持最小依赖。
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>模块</th>
+                                <th>依赖</th>
+                                <th>功能</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Tests</strong></td>
+                                <td>common::spdlog</td>
+                                <td>功能验证、性能测试、集成测试</td>
+                            </tr>
+                            <tr>
+                                <td><strong>common::spdlog</strong></td>
+                                <td>spdlog, nlohmann/json</td>
+                                <td>日志管理、配置解析、文件操作</td>
+                            </tr>
+                            <tr>
+                                <td><strong>spdlog</strong></td>
+                                <td>无</td>
+                                <td>高性能日志记录</td>
+                            </tr>
+                            <tr>
+                                <td><strong>nlohmann/json</strong></td>
+                                <td>无</td>
+                                <td>JSON数据处理</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Core Modules -->
+            <section>
+                <h2>核心模块</h2>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3>🏛️ common::spdlog</h3>
+                        <p><strong>位置：</strong> <code>src/common/spdlog/</code></p>
+                        <p><strong>功能：</strong> 封装spdlog库，提供高级日志管理功能</p>
+                        <h4>主要组件：</h4>
+                        <ul>
+                            <li><code>ZeusLogManager</code> - 日志管理器</li>
+                            <li><code>LoggerConfig</code> - 配置管理</li>
+                            <li><code>zeus_log_manager.h</code> - 主要接口</li>
+                        </ul>
+                        <a href="common-spdlog.html" class="btn">详细文档</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>⚙️ 日志管理器</h3>
+                        <p><strong>类：</strong> <code>ZeusLogManager</code></p>
+                        <p><strong>模式：</strong> 单例模式</p>
+                        <h4>核心功能：</h4>
+                        <ul>
+                            <li>Logger生命周期管理</li>
+                            <li>配置文件解析</li>
+                            <li>动态Logger创建</li>
+                            <li>线程安全操作</li>
+                        </ul>
+                        <a href="log-manager.html" class="btn">详细文档</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📋 配置系统</h3>
+                        <p><strong>格式：</strong> JSON</p>
+                        <p><strong>库：</strong> nlohmann/json</p>
+                        <h4>支持配置：</h4>
+                        <ul>
+                            <li>多Logger配置</li>
+                            <li>日志级别设置</li>
+                            <li>轮转策略配置</li>
+                            <li>输出格式定制</li>
+                        </ul>
+                        <a href="configuration.html" class="btn">详细文档</a>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🧪 测试模块</h3>
+                        <p><strong>位置：</strong> <code>tests/</code></p>
+                        <p><strong>架构：</strong> 独立可执行程序</p>
+                        <h4>测试类型：</h4>
+                        <ul>
+                            <li>功能测试</li>
+                            <li>性能基准测试</li>
+                            <li>配置验证测试</li>
+                            <li>多线程安全测试</li>
+                        </ul>
+                        <a href="testing.html" class="btn">详细文档</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Module Features -->
+            <section>
+                <h2>模块特性</h2>
+                
+                <div class="card">
+                    <h3>common::spdlog 模块特性</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>特性</th>
+                                <th>实现方式</th>
+                                <th>配置选项</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>日志轮转</td>
+                                <td>daily_file_sink_mt, hourly_file_sink_mt</td>
+                                <td>rotation_type: "daily"/"hourly"</td>
+                            </tr>
+                            <tr>
+                                <td>多级别日志</td>
+                                <td>spdlog::level::level_enum</td>
+                                <td>level: "trace"/"debug"/"info"/"warn"/"error"/"critical"</td>
+                            </tr>
+                            <tr>
+                                <td>线程安全</td>
+                                <td>multi-threaded sinks (*_mt)</td>
+                                <td>内置支持，无需额外配置</td>
+                            </tr>
+                            <tr>
+                                <td>控制台输出</td>
+                                <td>stdout_color_sinks_mt</td>
+                                <td>console_output: true/false</td>
+                            </tr>
+                            <tr>
+                                <td>文件数量限制</td>
+                                <td>max_files参数</td>
+                                <td>max_files: 数字</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>配置系统特性</h3>
+                    <h4>支持的配置项：</h4>
+                    <pre><code>{
+  "loggers": [
+    {
+      "name": "logger名称",
+      "level": "日志级别",
+      "rotation_type": "轮转类型",
+      "file_path": "文件路径",
+      "max_files": "最大文件数",
+      "console_output": "控制台输出",
+      "pattern": "日志格式"
+    }
+  ]
+}</code></pre>
+                    
+                    <h4>高级特性：</h4>
+                    <ul>
+                        <li><strong>动态重载</strong> - 运行时重新加载配置</li>
+                        <li><strong>环境变量</strong> - 支持环境变量替换</li>
+                        <li><strong>路径展开</strong> - 自动创建日志目录</li>
+                        <li><strong>配置验证</strong> - 启动时验证配置有效性</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- API Overview -->
+            <section>
+                <h2>API概览</h2>
+                
+                <div class="card">
+                    <h3>主要API接口</h3>
+                    
+                    <h4>ZeusLogManager</h4>
+                    <pre><code>class ZeusLogManager {
+public:
+    // 获取单例实例
+    static ZeusLogManager& Instance();
+    
+    // 初始化日志系统
+    bool Initialize(const std::string& config_file = "");
+    
+    // 获取Logger
+    std::shared_ptr&lt;::spdlog::logger&gt; GetLogger(const std::string& name);
+    
+    // 重新加载配置
+    bool ReloadConfig();
+    
+    // 清理资源
+    void Shutdown();
+};</code></pre>
+                    
+                    <h4>使用示例</h4>
+                    <pre><code>#include "common/spdlog/zeus_log_manager.h"
+
+int main() {
+    using namespace common::spdlog;
+    
+    // 初始化
+    if (!ZeusLogManager::Instance().Initialize("log_config.json")) {
+        return 1;
+    }
+    
+    // 获取Logger
+    auto logger = ZeusLogManager::Instance().GetLogger("app");
+    
+    // 记录日志
+    logger->info("应用程序启动");
+    logger->warn("这是警告信息");
+    logger->error("错误信息: {}", error_msg);
+    
+    return 0;
+}</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>Logger操作API</h3>
+                    <pre><code>// 基本日志记录
+logger->trace("跟踪信息");
+logger->debug("调试信息");
+logger->info("一般信息");
+logger->warn("警告信息");
+logger->error("错误信息");
+logger->critical("严重错误");
+
+// 格式化日志
+logger->info("用户 {} 登录成功，时间: {}", username, timestamp);
+logger->error("文件 {} 打开失败，错误码: {}", filename, error_code);
+
+// 条件日志
+if (logger->should_log(spdlog::level::debug)) {
+    logger->debug("调试信息: {}", expensive_debug_info());
+}
+
+// 设置日志级别
+logger->set_level(spdlog::level::warn);
+
+// 刷新缓冲区
+logger->flush();</code></pre>
+                </div>
+            </section>
+
+            <!-- Performance -->
+            <section>
+                <h2>性能特性</h2>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3>📊 性能指标</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>测试场景</th>
+                                    <th>吞吐量</th>
+                                    <th>延迟</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>单线程日志</td>
+                                    <td>~500,000 logs/sec</td>
+                                    <td>&lt; 1μs</td>
+                                </tr>
+                                <tr>
+                                    <td>多线程日志</td>
+                                    <td>~1,000,000 logs/sec</td>
+                                    <td>&lt; 2μs</td>
+                                </tr>
+                                <tr>
+                                    <td>异步日志</td>
+                                    <td>~2,000,000 logs/sec</td>
+                                    <td>&lt; 0.5μs</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>⚡ 优化特性</h3>
+                        <ul>
+                            <li><strong>零拷贝</strong> - 最小化内存分配</li>
+                            <li><strong>预分配缓冲区</strong> - 减少动态分配</li>
+                            <li><strong>无锁队列</strong> - 高效线程间通信</li>
+                            <li><strong>批量写入</strong> - 减少系统调用</li>
+                            <li><strong>编译时优化</strong> - 格式字符串优化</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>内存使用</h3>
+                    <ul>
+                        <li><strong>基础开销</strong>: ~50KB (静态库)</li>
+                        <li><strong>每个Logger</strong>: ~2KB</li>
+                        <li><strong>缓冲区</strong>: 可配置 (默认8KB)</li>
+                        <li><strong>第三方库</strong>: Header-only集成</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section>
+                <h2>最佳实践</h2>
+                
+                <div class="grid">
+                    <div class="card">
+                        <h3>🎯 Logger命名</h3>
+                        <ul>
+                            <li>使用有意义的名称: <code>"database"</code>, <code>"network"</code></li>
+                            <li>按模块划分: <code>"auth"</code>, <code>"billing"</code></li>
+                            <li>避免特殊字符，使用小写字母</li>
+                            <li>保持名称简短但具有描述性</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📁 文件组织</h3>
+                        <ul>
+                            <li>按日期分目录: <code>logs/2025/01/app.log</code></li>
+                            <li>按模块分文件: <code>logs/auth.log</code>, <code>logs/db.log</code></li>
+                            <li>使用统一的文件扩展名: <code>.log</code></li>
+                            <li>设置合理的轮转策略</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🔧 性能优化</h3>
+                        <ul>
+                            <li>生产环境使用INFO级别</li>
+                            <li>避免在热路径记录DEBUG日志</li>
+                            <li>使用异步日志处理高并发</li>
+                            <li>合理设置缓冲区大小</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🛡️ 错误处理</h3>
+                        <ul>
+                            <li>检查初始化返回值</li>
+                            <li>处理配置文件错误</li>
+                            <li>监控磁盘空间</li>
+                            <li>实现优雅降级</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Module Integration -->
+            <section>
+                <h2>模块集成</h2>
+                
+                <div class="card">
+                    <h3>CMake集成</h3>
+                    <p>在您的项目中集成Zeus模块：</p>
+                    <pre><code># 添加Zeus子项目
+add_subdirectory(third_party/zeus/src/common)
+
+# 创建您的目标
+add_executable(my_app main.cpp)
+
+# 链接Zeus模块
+target_link_libraries(my_app PRIVATE common_spdlog)
+
+# 包含头文件
+target_include_directories(my_app PRIVATE 
+    third_party/zeus/include
+)</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>命名空间使用</h3>
+                    <pre><code>// 推荐方式 - 明确命名空间
+#include "common/spdlog/zeus_log_manager.h"
+
+int main() {
+    // 显式使用命名空间
+    common::spdlog::ZeusLogManager::Instance().Initialize();
+    
+    // 或在局部作用域使用
+    using namespace common::spdlog;
+    auto logger = ZeusLogManager::Instance().GetLogger("app");
+    
+    return 0;
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                <a href="../getting-started/installation.html" class="btn btn-secondary">← 安装说明</a>
+                <a href="common-spdlog.html" class="btn">common::spdlog模块 →</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <p>&copy; 2025 Zeus项目. 基于C++17开发的大型MMORPG游戏框架，支持分布式部署。</p>
+            </div>
+            <ul class="footer-nav">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../getting-started/index.html">快速开始</a></li>
+                <li><a href="index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

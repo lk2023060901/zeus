@@ -1,0 +1,21 @@
+{
+  "loggers": [
+    {
+      "name": "network",
+      "level": "debug",
+      "rotation_type": "daily",
+      "file_path": "logs/network.log",
+      "max_files": 7,
+      "console_output": true,
+      "pattern": "[%Y-%m-%d %H:%M:%S.%e] [%n] [%^%l%$] %v"
+    },
+    {
+      "name": "game",
+      "level": "info",
+      "rotation_type": "daily", 
+      "file_path": "logs/game.log",
+      "max_files": 30,
+      "console_output": false
+    }
+  ]
+}

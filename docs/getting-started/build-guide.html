@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>构建指南 - Zeus项目文档</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="../index.html" class="logo">Zeus 项目</a>
+            <ul class="nav-links">
+                <li><a href="index.html">快速开始</a></li>
+                <li><a href="../modules/index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+                <li><a href="../api/index.html">API文档</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>快速开始</h3>
+            <ul class="sidebar-nav">
+                <li><a href="index.html">概览</a></li>
+                <li><a href="tech-stack.html">技术栈</a></li>
+                <li><a href="build-guide.html" class="active">构建指南</a></li>
+                <li><a href="installation.html">安装说明</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Breadcrumbs -->
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span>/</span>
+                <a href="index.html">快速开始</a>
+                <span>/</span>
+                <span>构建指南</span>
+            </nav>
+
+            <h1>构建指南</h1>
+            
+            <p>本指南将详细介绍如何构建Zeus游戏框架，包括系统要求、依赖安装、构建选项和常见问题解决方案。</p>
+
+            <!-- System Requirements -->
+            <section>
+                <h2>系统要求</h2>
+                
+                <div class="card">
+                    <h3>最低要求</h3>
+                    <ul>
+                        <li><strong>操作系统</strong>: Linux (Ubuntu 18.04+), macOS (10.15+), Windows (10+)</li>
+                        <li><strong>编译器</strong>: 
+                            <ul>
+                                <li>GCC 8+ (Linux) - 完整C++17支持</li>
+                                <li>Clang 6+ (macOS/Linux) - 完整C++17支持</li>
+                                <li>MSVC 2017 15.7+ (Windows) - 完整C++17支持</li>
+                            </ul>
+                        </li>
+                        <li><strong>CMake</strong>: 3.16 或更高版本</li>
+                        <li><strong>内存</strong>: 至少 2GB RAM</li>
+                        <li><strong>磁盘空间</strong>: 至少 1GB 可用空间</li>
+                    </ul>
+                    
+                    <div class="alert alert-warning">
+                        <strong>编译器版本说明:</strong> 早期版本如GCC 7、Clang 5对某些C++17特性（如std::filesystem）支持不完整，建议使用推荐版本以上。
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>推荐配置</h3>
+                    <ul>
+                        <li><strong>编译器</strong>: GCC 9+, Clang 10+, MSVC 2019 16.0+</li>
+                        <li><strong>CMake</strong>: 3.20+</li>
+                        <li><strong>内存</strong>: 4GB+ RAM</li>
+                        <li><strong>CPU</strong>: 多核处理器（并行编译）</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3>C++17编译器兼容性</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>编译器</th>
+                                <th>最低版本</th>
+                                <th>推荐版本</th>
+                                <th>C++17特性支持</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>GCC</strong></td>
+                                <td>8.0</td>
+                                <td>9.0+</td>
+                                <td>完整支持std::filesystem等C++17特性</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Clang</strong></td>
+                                <td>6.0</td>
+                                <td>10.0+</td>
+                                <td>完整支持所有C++17标准库特性</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MSVC</strong></td>
+                                <td>2017 15.7</td>
+                                <td>2019 16.0+</td>
+                                <td>Visual Studio 2017 15.7开始完整支持</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="alert alert-info">
+                        <strong>版本检查命令:</strong>
+                        <ul>
+                            <li>GCC: <code>gcc --version</code></li>
+                            <li>Clang: <code>clang --version</code></li>
+                            <li>MSVC: 查看Visual Studio安装信息或<code>cl.exe</code>版本</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Start -->
+            <section>
+                <h2>快速构建</h2>
+                
+                <div class="alert alert-info">
+                    <strong>最快开始方式</strong> - 如果您已经安装了所需的编译器和CMake，可以直接按照以下步骤快速构建游戏框架。
+                </div>
+
+                <pre><code># 1. 克隆或下载项目
+cd /path/to/zeus
+
+# 2. 创建构建目录
+mkdir build && cd build
+
+# 3. 配置游戏框架 (默认动态库模式)
+cmake ..
+
+# 4. 编译框架
+make -j$(nproc)  # Linux/macOS
+# 或 cmake --build . --parallel  # 跨平台
+
+# 5. 运行测试
+./bin/zeus_test_basic</code></pre>
+            </section>
+
+            <!-- Build Options -->
+            <section>
+                <h2>构建选项</h2>
+                
+                <div class="card">
+                    <h3>主要构建选项</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>选项</th>
+                                <th>默认值</th>
+                                <th>说明</th>
+                                <th>示例</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>BUILD_SHARED_LIBS</code></td>
+                                <td><strong>ON</strong></td>
+                                <td>控制构建静态库还是动态库</td>
+                                <td><code>-DBUILD_SHARED_LIBS=OFF</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>BUILD_TESTS</code></td>
+                                <td><strong>OFF</strong></td>
+                                <td>是否构建测试程序</td>
+                                <td><code>-DBUILD_TESTS=ON</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>CMAKE_BUILD_TYPE</code></td>
+                                <td>Release</td>
+                                <td>构建类型</td>
+                                <td><code>-DCMAKE_BUILD_TYPE=Debug</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>CMAKE_INSTALL_PREFIX</code></td>
+                                <td>/usr/local</td>
+                                <td>安装路径</td>
+                                <td><code>-DCMAKE_INSTALL_PREFIX=/opt/zeus</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>构建模式对比</h3>
+                    
+                    <h4>动态库模式 (默认)</h4>
+                    <pre><code>cmake ..  # 默认使用动态库</code></pre>
+                    <ul>
+                        <li>✅ 可执行文件较小</li>
+                        <li>✅ 编译时间较短</li>
+                        <li>✅ 多个程序可共享库</li>
+                        <li>❌ 需要运行时库依赖</li>
+                        <li>❌ 部署复杂</li>
+                    </ul>
+
+                    <h4>静态库模式</h4>
+                    <pre><code>cmake .. -DBUILD_SHARED_LIBS=OFF</code></pre>
+                    <ul>
+                        <li>✅ 生成独立可执行文件</li>
+                        <li>✅ 无运行时依赖</li>
+                        <li>✅ 适合生产环境部署</li>
+                        <li>❌ 可执行文件较大</li>
+                        <li>❌ 编译时间较长</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Detailed Steps -->
+            <section>
+                <h2>详细构建步骤</h2>
+
+                <div class="card">
+                    <h3>步骤1: 准备环境</h3>
+                    
+                    <h4>Linux (Ubuntu/Debian)</h4>
+                    <pre><code># 安装编译工具
+sudo apt-get update
+sudo apt-get install build-essential cmake git
+
+# 验证安装
+gcc --version
+cmake --version</code></pre>
+
+                    <h4>macOS</h4>
+                    <pre><code># 安装Xcode Command Line Tools
+xcode-select --install
+
+# 使用Homebrew安装CMake (可选)
+brew install cmake
+
+# 验证安装
+clang --version
+cmake --version</code></pre>
+
+                    <h4>Windows</h4>
+                    <div class="alert alert-info">
+                        <strong>推荐使用:</strong> Visual Studio 2019/2022 Community Edition，包含CMake集成支持。
+                    </div>
+                    <ol>
+                        <li>安装 Visual Studio Community</li>
+                        <li>确保选择 "C++ CMake tools for Visual Studio"</li>
+                        <li>或单独安装 CMake from <a href="https://cmake.org/download/">cmake.org</a></li>
+                    </ol>
+                </div>
+
+                <div class="card">
+                    <h3>步骤2: 获取源码</h3>
+                    <pre><code># 如果使用Git
+git clone &lt;repository-url&gt; zeus
+cd zeus
+
+# 或解压下载的源码包
+unzip zeus-project.zip
+cd zeus</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>步骤3: 配置项目</h3>
+                    <pre><code># 创建构建目录
+mkdir build && cd build
+
+# 基本配置 (默认: 动态库，不包含测试)
+cmake ..
+
+# 或自定义配置
+cmake .. \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DBUILD_TESTS=ON \
+  -DCMAKE_BUILD_TYPE=Release</code></pre>
+
+                    <div class="alert alert-success">
+                        <strong>配置成功输出示例:</strong>
+                        <pre><code>-- Common: Building static libraries - all dependencies will be statically linked
+-- Found spdlog: /path/to/zeus/thirdparty/spdlog-1.15.3/include
+-- Found nlohmann/json: /path/to/zeus/thirdparty/nlohmann-json-3.12.0/include
+-- Found Boost: /path/to/zeus/thirdparty/boost-1.88.0
+-- === Common Library Configuration ===
+-- Library type: STATIC
+-- === Zeus Project Configuration ===
+-- Build Tests: ON
+-- Configuring done
+-- Generating done</code></pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>步骤4: 编译项目</h3>
+                    <pre><code># 使用make (Linux/macOS)
+make -j$(nproc)
+
+# 或使用CMake (跨平台)
+cmake --build . --parallel
+
+# Windows Visual Studio
+cmake --build . --config Release</code></pre>
+
+                    <div class="alert alert-success">
+                        <strong>编译成功输出:</strong>
+                        <pre><code>[100%] Built target common_spdlog
+[100%] Built target zeus_test_basic
+[100%] Built target test_zeus_log
+[100%] Built target test_spdlog_performance
+[100%] Built target test_spdlog_config
+[100%] Built target test_spdlog_multithread</code></pre>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>步骤5: 验证构建</h3>
+                    <pre><code># 查看生成的文件
+ls -la lib/     # 库文件
+ls -la bin/     # 可执行文件
+
+# 运行基础测试
+cd bin
+./zeus_test_basic
+
+# 运行所有测试
+./test_zeus_log
+./test_spdlog_performance
+./test_spdlog_config
+./test_spdlog_multithread</code></pre>
+                </div>
+            </section>
+
+            <!-- Advanced Options -->
+            <section>
+                <h2>高级选项</h2>
+
+                <div class="card">
+                    <h3>交叉编译</h3>
+                    <p>Zeus项目支持交叉编译到不同的目标平台。</p>
+                    <pre><code># ARM64 交叉编译示例
+cmake .. \
+  -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm64-linux-gnu.cmake \
+  -DBUILD_SHARED_LIBS=OFF</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>调试构建</h3>
+                    <pre><code># 调试模式构建
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DBUILD_SHARED_LIBS=OFF
+
+# 启用详细输出
+make VERBOSE=1</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>仅构建库（不构建测试）</h3>
+                    <pre><code># 适合生产环境
+cmake .. \
+  -DBUILD_TESTS=OFF \
+  -DBUILD_SHARED_LIBS=OFF
+
+make -j$(nproc)</code></pre>
+                </div>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section>
+                <h2>常见问题</h2>
+
+                <div class="card">
+                    <h3>编译器版本问题</h3>
+                    <div class="alert alert-warning">
+                        <strong>错误:</strong> <code>error: 'filesystem' is not a member of 'std'</code>
+                    </div>
+                    <p><strong>原因:</strong> 编译器不支持C++17的std::filesystem或版本过旧</p>
+                    <p><strong>解决方案:</strong></p>
+                    <ul>
+                        <li>升级到完整支持C++17的编译器版本</li>
+                        <li>Linux: <code>sudo apt-get install gcc-8 g++-8</code> 或更新版本</li>
+                        <li>macOS: 更新Xcode Command Line Tools 到支持Clang 6+</li>
+                        <li>Windows: 安装Visual Studio 2017 15.7或更新版本</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>CMake版本问题</h3>
+                    <div class="alert alert-warning">
+                        <strong>错误:</strong> <code>CMake 3.16 or higher is required</code>
+                    </div>
+                    <p><strong>解决方案:</strong></p>
+                    <pre><code># Ubuntu/Debian - 使用官方APT仓库
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc | sudo apt-key add -
+sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
+sudo apt-get update && sudo apt-get install cmake
+
+# 或从官网下载最新版本
+wget https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-linux-x86_64.tar.gz</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>第三方库下载失败</h3>
+                    <div class="alert alert-warning">
+                        <strong>错误:</strong> <code>Failed to download spdlog archive</code>
+                    </div>
+                    <p><strong>原因:</strong> 网络问题或代理设置</p>
+                    <p><strong>解决方案:</strong></p>
+                    <ul>
+                        <li>检查网络连接</li>
+                        <li>配置代理: <code>export https_proxy=http://proxy:port</code></li>
+                        <li>手动下载到thirdparty目录</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>内存不足</h3>
+                    <div class="alert alert-warning">
+                        <strong>错误:</strong> <code>c++: internal compiler error: Killed</code>
+                    </div>
+                    <p><strong>解决方案:</strong></p>
+                    <ul>
+                        <li>减少并行编译数: <code>make -j2</code></li>
+                        <li>增加swap空间</li>
+                        <li>使用发布模式: <code>-DCMAKE_BUILD_TYPE=Release</code></li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Performance Tips -->
+            <section>
+                <h2>性能优化建议</h2>
+
+                <div class="card">
+                    <h3>编译性能</h3>
+                    <ul>
+                        <li><strong>并行编译</strong>: 使用 <code>make -j$(nproc)</code></li>
+                        <li><strong>使用ccache</strong>: 缓存编译结果</li>
+                        <li><strong>SSD存储</strong>: 将构建目录放在SSD上</li>
+                        <li><strong>足够内存</strong>: 避免swap的使用</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>运行时性能</h3>
+                    <ul>
+                        <li><strong>Release模式</strong>: 生产环境使用Release构建</li>
+                        <li><strong>静态链接</strong>: 减少运行时加载开销</li>
+                        <li><strong>链接时优化</strong>: 启用LTO (Link Time Optimization)</li>
+                    </ul>
+                    
+                    <pre><code># 启用LTO的Release构建
+cmake .. \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON</code></pre>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                <a href="tech-stack.html" class="btn btn-secondary">← 技术栈</a>
+                <a href="installation.html" class="btn">安装说明 →</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <p>&copy; 2025 Zeus项目. 基于C++17开发的大型MMORPG游戏框架，支持分布式部署。</p>
+            </div>
+            <ul class="footer-nav">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="index.html">快速开始</a></li>
+                <li><a href="../modules/index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

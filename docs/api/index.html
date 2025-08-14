@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API文档 - Zeus项目文档</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <a href="../index.html" class="logo">Zeus 项目</a>
+            <ul class="nav-links">
+                <li><a href="../getting-started/index.html">快速开始</a></li>
+                <li><a href="../modules/index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+                <li><a href="index.html">API文档</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>API文档</h3>
+            <ul class="sidebar-nav">
+                <li><a href="index.html" class="active">概览</a></li>
+                <li><a href="zeus-log-manager.html">ZeusLogManager</a></li>
+                <li><a href="logger-config.html">LoggerConfig</a></li>
+                <li><a href="spdlog-wrapper.html">spdlog封装</a></li>
+                <li><a href="examples.html">使用示例</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Breadcrumbs -->
+            <nav class="breadcrumb">
+                <a href="../index.html">首页</a>
+                <span>/</span>
+                <span>API文档</span>
+            </nav>
+
+            <h1>API文档</h1>
+            
+            <p>Zeus游戏框架提供了简洁而强大的API接口，让您能够轻松开发大型MMORPG游戏。本文档详细介绍了游戏框架所有公共API的使用方法、参数说明和示例代码。</p>
+
+            <!-- API Overview -->
+            <section>
+                <h2>API概览</h2>
+                
+                <div class="card">
+                    <h3>核心API组件</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>组件</th>
+                                <th>命名空间</th>
+                                <th>头文件</th>
+                                <th>功能</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>ZeusLogManager</strong></td>
+                                <td>common::spdlog</td>
+                                <td>zeus_log_manager.h</td>
+                                <td>日志系统管理和Logger获取</td>
+                            </tr>
+                            <tr>
+                                <td><strong>LoggerConfig</strong></td>
+                                <td>common::spdlog</td>
+                                <td>logger_config.h</td>
+                                <td>配置文件解析和管理</td>
+                            </tr>
+                            <tr>
+                                <td><strong>spdlog::logger</strong></td>
+                                <td>::spdlog</td>
+                                <td>spdlog/spdlog.h</td>
+                                <td>实际的日志记录接口</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>API设计原则</h3>
+                    <ul>
+                        <li><strong>简单易用</strong> - 最少的API调用即可开始使用</li>
+                        <li><strong>类型安全</strong> - 编译时检查，减少运行时错误</li>
+                        <li><strong>线程安全</strong> - 所有API都是线程安全的</li>
+                        <li><strong>RAII管理</strong> - 自动资源管理，无需手动清理</li>
+                        <li><strong>异常安全</strong> - 合理的异常处理机制</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ZeusLogManager API -->
+            <section>
+                <h2>ZeusLogManager API</h2>
+                
+                <div class="card">
+                    <h3>类声明</h3>
+                    <pre><code>namespace common {
+namespace spdlog {
+
+class ZeusLogManager {
+public:
+    // 获取单例实例
+    static ZeusLogManager& Instance();
+    
+    // 日志系统初始化
+    bool Initialize(const std::string& config_file = "");
+    
+    // 获取指定名称的Logger
+    std::shared_ptr&lt;::spdlog::logger&gt; GetLogger(const std::string& name);
+    
+    // 重新加载配置
+    bool ReloadConfig();
+    
+    // 系统关闭清理
+    void Shutdown();
+    
+    // 检查初始化状态
+    bool IsInitialized() const;
+
+private:
+    ZeusLogManager() = default;
+    ~ZeusLogManager() = default;
+    ZeusLogManager(const ZeusLogManager&) = delete;
+    ZeusLogManager& operator=(const ZeusLogManager&) = delete;
+};
+
+} // namespace spdlog
+} // namespace common</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>方法详解</h3>
+                    
+                    <h4>Instance()</h4>
+                    <pre><code>static ZeusLogManager& Instance();</code></pre>
+                    <p><strong>功能：</strong> 获取ZeusLogManager的单例实例</p>
+                    <p><strong>返回值：</strong> ZeusLogManager的引用</p>
+                    <p><strong>线程安全：</strong> 是</p>
+                    <p><strong>示例：</strong></p>
+                    <pre><code>auto& manager = ZeusLogManager::Instance();</code></pre>
+
+                    <h4>Initialize(config_file)</h4>
+                    <pre><code>bool Initialize(const std::string& config_file = "");</code></pre>
+                    <p><strong>功能：</strong> 初始化日志系统</p>
+                    <p><strong>参数：</strong></p>
+                    <ul>
+                        <li><code>config_file</code> - 配置文件路径，为空时使用默认配置</li>
+                    </ul>
+                    <p><strong>返回值：</strong> 初始化成功返回true，失败返回false</p>
+                    <p><strong>异常：</strong> 不抛出异常</p>
+                    <p><strong>示例：</strong></p>
+                    <pre><code>if (!ZeusLogManager::Instance().Initialize("log_config.json")) {
+    std::cerr << "日志初始化失败" << std::endl;
+    return 1;
+}</code></pre>
+
+                    <h4>GetLogger(name)</h4>
+                    <pre><code>std::shared_ptr&lt;::spdlog::logger&gt; GetLogger(const std::string& name);</code></pre>
+                    <p><strong>功能：</strong> 获取指定名称的Logger实例</p>
+                    <p><strong>参数：</strong></p>
+                    <ul>
+                        <li><code>name</code> - Logger名称，必须在配置文件中定义</li>
+                    </ul>
+                    <p><strong>返回值：</strong> spdlog::logger的智能指针，失败时返回nullptr</p>
+                    <p><strong>线程安全：</strong> 是</p>
+                    <p><strong>示例：</strong></p>
+                    <pre><code>auto logger = ZeusLogManager::Instance().GetLogger("game");
+if (logger) {
+    logger->info("游戏开始");
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Logger API -->
+            <section>
+                <h2>Logger API</h2>
+                
+                <div class="card">
+                    <h3>日志级别</h3>
+                    <p>Zeus支持以下日志级别，按严重程度递增：</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>级别</th>
+                                <th>枚举值</th>
+                                <th>方法</th>
+                                <th>用途</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>TRACE</td>
+                                <td>spdlog::level::trace</td>
+                                <td>logger->trace()</td>
+                                <td>最详细的跟踪信息</td>
+                            </tr>
+                            <tr>
+                                <td>DEBUG</td>
+                                <td>spdlog::level::debug</td>
+                                <td>logger->debug()</td>
+                                <td>调试信息</td>
+                            </tr>
+                            <tr>
+                                <td>INFO</td>
+                                <td>spdlog::level::info</td>
+                                <td>logger->info()</td>
+                                <td>一般信息</td>
+                            </tr>
+                            <tr>
+                                <td>WARN</td>
+                                <td>spdlog::level::warn</td>
+                                <td>logger->warn()</td>
+                                <td>警告信息</td>
+                            </tr>
+                            <tr>
+                                <td>ERROR</td>
+                                <td>spdlog::level::err</td>
+                                <td>logger->error()</td>
+                                <td>错误信息</td>
+                            </tr>
+                            <tr>
+                                <td>CRITICAL</td>
+                                <td>spdlog::level::critical</td>
+                                <td>logger->critical()</td>
+                                <td>严重错误</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>基本日志方法</h3>
+                    
+                    <h4>简单文本日志</h4>
+                    <pre><code>// 基本用法
+logger->info("用户登录成功");
+logger->warn("内存使用率较高");
+logger->error("数据库连接失败");
+
+// 多行日志
+logger->debug("开始处理请求\n"
+              "请求ID: 12345\n"
+              "用户: admin");</code></pre>
+
+                    <h4>格式化日志</h4>
+                    <pre><code>// 使用fmt格式化语法
+logger->info("用户 {} 在 {} 登录", username, timestamp);
+logger->warn("内存使用率: {:.2f}%", memory_usage);
+logger->error("错误码: 0x{:08x}, 消息: {}", error_code, error_msg);
+
+// 更复杂的格式化
+logger->info("处理请求 - ID: {}, 耗时: {}ms, 状态: {}", 
+             request_id, duration, status);</code></pre>
+
+                    <h4>条件日志</h4>
+                    <pre><code>// 避免昂贵的字符串构造
+if (logger->should_log(spdlog::level::debug)) {
+    std::string debug_info = expensive_debug_function();
+    logger->debug("调试信息: {}", debug_info);
+}
+
+// 使用SPDLOG_DEBUG宏 (编译时优化)
+SPDLOG_LOGGER_DEBUG(logger, "调试信息: {}", debug_data);</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>高级日志功能</h3>
+                    
+                    <h4>Logger配置</h4>
+                    <pre><code>// 设置日志级别
+logger->set_level(spdlog::level::warn);
+
+// 设置输出格式
+logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%^%l%$] %v");
+
+// 刷新策略
+logger->flush_on(spdlog::level::err);  // 错误级别自动刷新
+logger->flush();                       // 手动刷新</code></pre>
+
+                    <h4>批量操作</h4>
+                    <pre><code>// 批量日志记录
+std::vector&lt;std::string&gt; messages = {"msg1", "msg2", "msg3"};
+for (const auto& msg : messages) {
+    logger->info("处理消息: {}", msg);
+}
+
+// 定期刷新
+auto start = std::chrono::steady_clock::now();
+// ... 大量日志操作 ...
+if (std::chrono::steady_clock::now() - start > std::chrono::seconds(1)) {
+    logger->flush();
+    start = std::chrono::steady_clock::now();
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Configuration API -->
+            <section>
+                <h2>配置API</h2>
+                
+                <div class="card">
+                    <h3>配置文件格式</h3>
+                    <pre><code>{
+  "loggers": [
+    {
+      "name": "应用程序",           // Logger名称
+      "level": "info",            // 日志级别
+      "rotation_type": "daily",   // 轮转类型: daily/hourly
+      "file_path": "logs/app.log", // 日志文件路径
+      "max_files": 30,            // 最大保留文件数
+      "console_output": true,     // 是否输出到控制台
+      "pattern": "[%Y-%m-%d %H:%M:%S.%e] [%n] [%^%l%$] %v"  // 格式模板
+    }
+  ]
+}</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>配置项详解</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>配置项</th>
+                                <th>类型</th>
+                                <th>必需</th>
+                                <th>默认值</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>name</td>
+                                <td>string</td>
+                                <td>是</td>
+                                <td>-</td>
+                                <td>Logger唯一标识符</td>
+                            </tr>
+                            <tr>
+                                <td>level</td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>"info"</td>
+                                <td>日志级别: trace/debug/info/warn/error/critical</td>
+                            </tr>
+                            <tr>
+                                <td>rotation_type</td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>"daily"</td>
+                                <td>轮转策略: daily/hourly</td>
+                            </tr>
+                            <tr>
+                                <td>file_path</td>
+                                <td>string</td>
+                                <td>是</td>
+                                <td>-</td>
+                                <td>日志文件保存路径</td>
+                            </tr>
+                            <tr>
+                                <td>max_files</td>
+                                <td>number</td>
+                                <td>否</td>
+                                <td>30</td>
+                                <td>最大保留的日志文件数量</td>
+                            </tr>
+                            <tr>
+                                <td>console_output</td>
+                                <td>boolean</td>
+                                <td>否</td>
+                                <td>false</td>
+                                <td>是否同时输出到控制台</td>
+                            </tr>
+                            <tr>
+                                <td>pattern</td>
+                                <td>string</td>
+                                <td>否</td>
+                                <td>默认格式</td>
+                                <td>日志输出格式模板</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>格式模板</h3>
+                    <p>支持的格式占位符：</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>占位符</th>
+                                <th>说明</th>
+                                <th>示例</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>%Y-%m-%d</td>
+                                <td>日期 (年-月-日)</td>
+                                <td>2025-08-12</td>
+                            </tr>
+                            <tr>
+                                <td>%H:%M:%S</td>
+                                <td>时间 (时:分:秒)</td>
+                                <td>14:30:25</td>
+                            </tr>
+                            <tr>
+                                <td>%e</td>
+                                <td>毫秒</td>
+                                <td>123</td>
+                            </tr>
+                            <tr>
+                                <td>%n</td>
+                                <td>Logger名称</td>
+                                <td>game</td>
+                            </tr>
+                            <tr>
+                                <td>%l</td>
+                                <td>日志级别</td>
+                                <td>info</td>
+                            </tr>
+                            <tr>
+                                <td>%v</td>
+                                <td>实际消息内容</td>
+                                <td>用户登录成功</td>
+                            </tr>
+                            <tr>
+                                <td>%t</td>
+                                <td>线程ID</td>
+                                <td>1234</td>
+                            </tr>
+                            <tr>
+                                <td>%P</td>
+                                <td>进程ID</td>
+                                <td>5678</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Error Handling -->
+            <section>
+                <h2>错误处理</h2>
+                
+                <div class="card">
+                    <h3>常见错误和处理</h3>
+                    
+                    <h4>初始化失败</h4>
+                    <pre><code>// 检查初始化结果
+if (!ZeusLogManager::Instance().Initialize("config.json")) {
+    // 处理初始化失败
+    std::cerr << "日志系统初始化失败" << std::endl;
+    
+    // 可能的原因：
+    // 1. 配置文件不存在
+    // 2. 配置文件格式错误
+    // 3. 日志目录无写权限
+    // 4. 磁盘空间不足
+    
+    return 1;
+}</code></pre>
+
+                    <h4>Logger获取失败</h4>
+                    <pre><code>auto logger = ZeusLogManager::Instance().GetLogger("unknown");
+if (!logger) {
+    std::cerr << "Logger 'unknown' 不存在" << std::endl;
+    // 使用默认Logger或返回错误
+    return;
+}
+
+// 安全的Logger使用
+if (auto logger = ZeusLogManager::Instance().GetLogger("app")) {
+    logger->info("应用程序启动");
+} else {
+    std::cerr << "无法获取Logger: app" << std::endl;
+}</code></pre>
+
+                    <h4>异常处理</h4>
+                    <pre><code>try {
+    ZeusLogManager::Instance().Initialize("config.json");
+    auto logger = ZeusLogManager::Instance().GetLogger("app");
+    logger->info("系统启动");
+} catch (const std::exception& e) {
+    std::cerr << "日志系统错误: " << e.what() << std::endl;
+    // 实现降级策略
+    use_fallback_logging();
+}</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>调试和诊断</h3>
+                    <pre><code>// 检查系统状态
+bool is_ready = ZeusLogManager::Instance().IsInitialized();
+if (!is_ready) {
+    std::cout << "日志系统未初始化" << std::endl;
+}
+
+// 获取系统信息
+auto logger = ZeusLogManager::Instance().GetLogger("debug");
+if (logger) {
+    logger->debug("Logger配置: level={}, pattern={}",
+                  spdlog::level::to_string_view(logger->level()),
+                  logger->pattern());
+}
+
+// 测试日志输出
+logger->trace("这是跟踪信息");
+logger->debug("这是调试信息");
+logger->info("这是一般信息");
+logger->warn("这是警告信息");
+logger->error("这是错误信息");
+logger->critical("这是严重错误");</code></pre>
+                </div>
+            </section>
+
+            <!-- Complete Example -->
+            <section>
+                <h2>完整示例</h2>
+                
+                <div class="card">
+                    <h3>基础使用示例</h3>
+                    <pre><code>#include "common/spdlog/zeus_log_manager.h"
+#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;chrono&gt;
+
+int main() {
+    using namespace common::spdlog;
+    
+    // 1. 初始化日志系统
+    if (!ZeusLogManager::Instance().Initialize("log_config.json")) {
+        std::cerr << "日志初始化失败" << std::endl;
+        return 1;
+    }
+    
+    // 2. 获取不同用途的Logger
+    auto app_logger = ZeusLogManager::Instance().GetLogger("application");
+    auto db_logger = ZeusLogManager::Instance().GetLogger("database");
+    auto net_logger = ZeusLogManager::Instance().GetLogger("network");
+    
+    if (!app_logger || !db_logger || !net_logger) {
+        std::cerr << "Logger获取失败" << std::endl;
+        return 1;
+    }
+    
+    // 3. 记录不同级别的日志
+    app_logger->info("应用程序启动 - 版本: {}", "1.0.0");
+    
+    // 模拟数据库操作
+    db_logger->debug("连接数据库...");
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    db_logger->info("数据库连接成功 - 连接池: {}/10", 3);
+    
+    // 模拟网络请求
+    net_logger->info("处理HTTP请求 - 方法: {}, 路径: {}", "GET", "/api/users");
+    net_logger->warn("响应时间较长: {}ms", 1500);
+    
+    // 模拟错误情况
+    try {
+        throw std::runtime_error("模拟异常");
+    } catch (const std::exception& e) {
+        app_logger->error("处理异常: {}", e.what());
+    }
+    
+    // 4. 性能关键路径的优化使用
+    for (int i = 0; i < 1000; ++i) {
+        if (app_logger->should_log(spdlog::level::debug)) {
+            app_logger->debug("处理项目 {}", i);
+        }
+    }
+    
+    // 5. 手动刷新确保数据写入
+    app_logger->flush();
+    db_logger->flush();
+    net_logger->flush();
+    
+    app_logger->info("应用程序正常退出");
+    return 0;
+}</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>对应的配置文件</h3>
+                    <pre><code>{
+  "loggers": [
+    {
+      "name": "application",
+      "level": "info",
+      "rotation_type": "daily",
+      "file_path": "logs/app.log",
+      "max_files": 30,
+      "console_output": true,
+      "pattern": "[%Y-%m-%d %H:%M:%S.%e] [%n] [%^%l%$] %v"
+    },
+    {
+      "name": "database",
+      "level": "debug",
+      "rotation_type": "daily",
+      "file_path": "logs/database.log",
+      "max_files": 7,
+      "console_output": false
+    },
+    {
+      "name": "network",
+      "level": "info",
+      "rotation_type": "hourly",
+      "file_path": "logs/network.log",
+      "max_files": 48,
+      "console_output": false
+    }
+  ]
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between;">
+                <a href="../development/index.html" class="btn btn-secondary">← 开发指南</a>
+                <a href="zeus-log-manager.html" class="btn">ZeusLogManager详解 →</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <p>&copy; 2025 Zeus项目. 基于C++17开发的大型MMORPG游戏框架，支持分布式部署。</p>
+            </div>
+            <ul class="footer-nav">
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="../getting-started/index.html">快速开始</a></li>
+                <li><a href="../modules/index.html">模块文档</a></li>
+                <li><a href="../development/index.html">开发指南</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "loggers": {
+    "default": {
+      "level": "debug",
+      "pattern": "[%Y-%m-%d %H:%M:%S.%e] [%l] [%t] %v",
+      "sinks": [
+        "console_sink",
+        "file_sink"
+      ]
+    },
+    "network": {
+      "level": "info",
+      "pattern": "[%Y-%m-%d %H:%M:%S.%e] [NET] [%l] %v",
+      "sinks": [
+        "console_sink",
+        "network_file_sink"
+      ]
+    },
+    "gateway": {
+      "level": "info", 
+      "pattern": "[%Y-%m-%d %H:%M:%S.%e] [GW] [%l] %v",
+      "sinks": [
+        "console_sink",
+        "gateway_file_sink"
+      ]
+    }
+  },
+  "sinks": {
+    "console_sink": {
+      "type": "console",
+      "color": true
+    },
+    "file_sink": {
+      "type": "daily_file",
+      "filename": "logs/zeus.log",
+      "max_files": 30,
+      "rotation_hour": 0,
+      "rotation_minute": 0
+    },
+    "network_file_sink": {
+      "type": "rotating_file",
+      "filename": "logs/network.log",
+      "max_size": "50MB",
+      "max_files": 10
+    },
+    "gateway_file_sink": {
+      "type": "rotating_file", 
+      "filename": "logs/gateway.log",
+      "max_size": "100MB",
+      "max_files": 20
+    }
+  },
+  "global": {
+    "flush_level": "warn",
+    "flush_interval_seconds": 5,
+    "async_queue_size": 8192,
+    "async_thread_count": 2
+  }
+}

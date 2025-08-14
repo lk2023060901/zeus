@@ -1,0 +1,54 @@
+{
+  "application": {
+    "name": "Zeus Gateway Production",
+    "version": "1.0.0",
+    "lua_script_path": "./scripts"
+  },
+  "gateway": {
+    "listen": {
+      "port": 8080,
+      "bind_address": "0.0.0.0"
+    },
+    "backend_servers": [
+      "backend-01.internal:8081",
+      "backend-02.internal:8081",
+      "backend-03.internal:8081",
+      "backend-04.internal:8081"
+    ],
+    "load_balance_strategy": "round_robin",
+    "limits": {
+      "max_client_connections": 50000,
+      "max_backend_connections": 200
+    },
+    "timeouts": {
+      "client_timeout_ms": 120000,
+      "backend_timeout_ms": 15000,
+      "heartbeat_interval_ms": 20000
+    },
+    "kcp": {
+      "nodelay": 1,
+      "interval": 5,
+      "resend": 2,
+      "nc": 1,
+      "mtu": 1400,
+      "window_size": 256
+    }
+  },
+  "logging": {
+    "console": false,
+    "file": true,
+    "default_file_prefix": "gateway",
+    "log_dir": "logs",
+    "loggers": [
+      {
+        "name": "gateway",
+        "level": "info",
+        "filename_pattern": "gateway_{date}.log",
+        "console_output": false,
+        "file_output": true,
+        "max_file_size_mb": 100,
+        "max_files": 30
+      }
+    ]
+  }
+}

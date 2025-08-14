@@ -1,0 +1,37 @@
+{
+    "global": {
+        "log_level": "debug",
+        "log_dir": "logs"
+    },
+    "loggers": [
+        {
+            "name": "game",
+            "filename_pattern": "game.log",
+            "level": "info",
+            "rotation_type": "daily",
+            "console_output": true
+        },
+        {
+            "name": "network",
+            "filename_pattern": "network.log", 
+            "level": "debug",
+            "rotation_type": "hourly",
+            "console_output": false
+        },
+        {
+            "name": "error",
+            "log_dir": "logs/errors",
+            "filename_pattern": "error.log",
+            "level": "error",
+            "rotation_type": "daily",
+            "console_output": true
+        },
+        {
+            "name": "performance",
+            "filename_pattern": "perf.log",
+            "level": "info",
+            "rotation_type": "hourly",
+            "console_output": false
+        }
+    ]
+}
