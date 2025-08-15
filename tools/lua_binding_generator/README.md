@@ -528,7 +528,7 @@ make
 | `--parallel` | `true` | 启用并行处理 |
 | `--max-threads` | `0`（自动） | 最大线程数 |
 | `--verbose` | `false` | 详细输出 |
-| `--stats` | `false` | 显示统计信息 |
+| `--show-stats` | `false` | 显示统计信息 |
 | `--config` | 无 | 配置文件路径 |
 
 ## 自动推导功能
@@ -759,7 +759,7 @@ zeus/
 
 ```bash
 # 启用详细输出
-./lua_binding_generator --verbose --stats examples/*.h
+./lua_binding_generator --verbose --show-stats examples/*.h
 
 # 强制重新生成（忽略缓存）
 ./lua_binding_generator --force-rebuild examples/*.h

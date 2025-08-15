@@ -5,48 +5,52 @@ project(lua_binding_generator VERSION 2.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 使用项目根目录的 cmake 模块
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
-
-# 按正确顺序查找依赖库 - 使用项目的依赖管理系统
-find_package(Zstd REQUIRED)    # LLVM 依赖 zstd
-find_package(LLVM REQUIRED)
-find_package(Clang REQUIRED) 
-find_package(Lua REQUIRED)
-find_package(Sol2 REQUIRED)
-
-# 编译器特定设置
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter")
-    # 修复 Sol2 库中的 GCC 特定警告在 Clang 中的问题
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-warning-option")
-    endif()
+# 检测 LLVM 安装
+if(EXISTS "/opt/homebrew/opt/llvm")
+    # macOS Homebrew LLVM
+    set(LLVM_ROOT "/opt/homebrew/opt/llvm")
+    set(LLVM_INCLUDE_DIRS "${LLVM_ROOT}/include")
+    set(LLVM_LIBRARY_DIRS "${LLVM_ROOT}/lib")
+    message(STATUS "使用 Homebrew LLVM: ${LLVM_ROOT}")
+elseif(EXISTS "/usr/local/opt/llvm")
+    # macOS Homebrew LLVM (Intel)
+    set(LLVM_ROOT "/usr/local/opt/llvm")
+    set(LLVM_INCLUDE_DIRS "${LLVM_ROOT}/include")
+    set(LLVM_LIBRARY_DIRS "${LLVM_ROOT}/lib")
+    message(STATUS "使用 Homebrew LLVM (Intel): ${LLVM_ROOT}")
+elseif(EXISTS "/usr/include/clang")
+    # 系统安装的 LLVM/Clang
+    set(LLVM_INCLUDE_DIRS "/usr/include")
+    set(LLVM_LIBRARY_DIRS "/usr/lib")
+    message(STATUS "使用系统 LLVM/Clang")
+else()
+    message(FATAL_ERROR "未找到 LLVM/Clang 开发库。请安装：brew install llvm")
 endif()
 
 # 头文件目录
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/include    # 添加项目根目录的include，用于访问common/lua/export_macros.h
+    ${CMAKE_SOURCE_DIR}/include    # Zeus 项目包含路径
     ${LLVM_INCLUDE_DIRS}
-    ${CLANG_INCLUDE_DIRS}
-    ${LUA_INCLUDE_DIRS}
-    ${SOL2_INCLUDE_DIRS}
 )
 
-# 源文件列表 - 重构后的新架构
+# 源文件列表 - 零配置版本
 set(GENERATOR_SOURCES
+    src/compiler_detector.cpp
+    src/dynamic_compilation_database.cpp
+    src/smart_inference_engine.cpp
     src/ast_visitor.cpp
     src/direct_binding_generator.cpp
-    src/smart_inference_engine.cpp
     src/incremental_generator.cpp
 )
 
-# 头文件列表 - 重构后的新架构
+# 头文件列表 - 零配置版本
 set(GENERATOR_HEADERS
+    include/lua_binding_generator/compiler_detector.h
+    include/lua_binding_generator/dynamic_compilation_database.h
+    include/lua_binding_generator/smart_inference_engine.h
     include/lua_binding_generator/ast_visitor.h
     include/lua_binding_generator/direct_binding_generator.h
-    include/lua_binding_generator/smart_inference_engine.h
     include/lua_binding_generator/incremental_generator.h
 )
 
@@ -64,96 +68,81 @@ set_target_properties(lua_binding_generator PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
-# 链接库 - 使用 Find 模块提供的导入目标
-target_link_libraries(lua_binding_generator
-    Clang::LibTooling    # 使用 FindClang.cmake 提供的 LibTooling 目标
-    LLVM::LLVM           # 使用 FindLLVM.cmake 提供的目标
-    zstd::zstd           # LLVM 依赖的压缩库
-    lua::lua             # 使用 FindLua.cmake 提供的目标
-    sol2::sol2           # 使用 FindSol2.cmake 提供的目标
+# 链接库目录
+link_directories(${LLVM_LIBRARY_DIRS})
+
+# 查找必要的 Clang/LLVM 库
+find_library(CLANG_TOOLING_LIB clangTooling PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_FRONTEND_LIB clangFrontend PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_AST_LIB clangAST PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_BASIC_LIB clangBasic PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_LEX_LIB clangLex PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_PARSE_LIB clangParse PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_SEMA_LIB clangSema PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_EDIT_LIB clangEdit PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_ANALYSIS_LIB clangAnalysis PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_DRIVER_LIB clangDriver PATHS ${LLVM_LIBRARY_DIRS})
+find_library(CLANG_SERIALIZATION_LIB clangSerialization PATHS ${LLVM_LIBRARY_DIRS})
+
+# 使用 clang-cpp 共享库而不是单独的库
+find_library(CLANG_CPP_LIB clang-cpp PATHS ${LLVM_LIBRARY_DIRS})
+find_library(LLVM_LIB LLVM PATHS ${LLVM_LIBRARY_DIRS})
+
+# 获取 LLVM 系统依赖
+execute_process(
+    COMMAND ${LLVM_ROOT}/bin/llvm-config --system-libs
+    OUTPUT_VARIABLE LLVM_SYSTEM_LIBS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+
+# 链接库
+if(CLANG_CPP_LIB AND LLVM_LIB)
+    # 使用共享库
+    target_link_libraries(lua_binding_generator
+        ${CLANG_CPP_LIB}
+        ${LLVM_LIB}
+        ${LLVM_SYSTEM_LIBS}
+    )
+    message(STATUS "使用共享库: clang-cpp + LLVM")
+else()
+    # 回退到单独的静态库
+    target_link_libraries(lua_binding_generator
+        ${CLANG_TOOLING_LIB}
+        ${CLANG_FRONTEND_LIB}
+        ${CLANG_AST_LIB}
+        ${CLANG_BASIC_LIB}
+        ${CLANG_LEX_LIB}
+        ${CLANG_PARSE_LIB}
+        ${CLANG_SEMA_LIB}
+        ${CLANG_EDIT_LIB}
+        ${CLANG_ANALYSIS_LIB}
+        ${CLANG_DRIVER_LIB}
+        ${CLANG_SERIALIZATION_LIB}
+        ${LLVM_SYSTEM_LIBS}
+    )
+    message(STATUS "使用静态库")
+endif()
 
 # 编译选项
 target_compile_options(lua_binding_generator PRIVATE
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
-    # 注意：保留异常处理，因为代码需要异常处理
+    -fno-rtti
 )
+
+# 显示配置信息
+message(STATUS "=== 零配置 Lua Binding Generator ===")
+message(STATUS "C++ 标准: ${CMAKE_CXX_STANDARD}")
+message(STATUS "LLVM 根目录: ${LLVM_ROOT}")
+message(STATUS "LLVM 包含目录: ${LLVM_INCLUDE_DIRS}")
+message(STATUS "LLVM 库目录: ${LLVM_LIBRARY_DIRS}")
+if(CLANG_TOOLING_LIB)
+    message(STATUS "Clang Tooling 库: ${CLANG_TOOLING_LIB}")
+else()
+    message(WARNING "未找到 Clang Tooling 库")
+endif()
+message(STATUS "====================================")
 
 # 安装配置
 install(TARGETS lua_binding_generator
     RUNTIME DESTINATION bin
     COMPONENT tools
 )
-
-# 安装示例文件
-install(DIRECTORY examples/
-    DESTINATION share/lua_binding_generator/examples
-    COMPONENT examples
-    FILES_MATCHING PATTERN "*.h" PATTERN "*.json"
-)
-
-# 显示配置信息
-message(STATUS "=== Lua Binding Generator Configuration ===")
-message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
-message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "LLVM Version: ${LLVM_VERSION}")
-if(CLANG_VERSION)
-    message(STATUS "Clang Version: ${CLANG_VERSION}")
-endif()
-if(LUA_VERSION_STRING)
-    message(STATUS "Lua Version: ${LUA_VERSION_STRING}")
-endif()
-if(SOL2_VERSION_STRING)
-    message(STATUS "Sol2 Version: ${SOL2_VERSION_STRING}")
-endif()
-message(STATUS "Install Prefix: ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "============================================")
-
-# 添加一些开发辅助目标
-
-# 格式化代码目标
-find_program(CLANG_FORMAT_EXECUTABLE clang-format)
-if(CLANG_FORMAT_EXECUTABLE)
-    add_custom_target(format
-        COMMAND ${CLANG_FORMAT_EXECUTABLE} -i -style=file
-            ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-            ${GENERATOR_SOURCES}
-            ${GENERATOR_HEADERS}
-        COMMENT "Formatting source code"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-endif()
-
-# 静态分析目标
-find_program(CLANG_TIDY_EXECUTABLE clang-tidy)
-if(CLANG_TIDY_EXECUTABLE)
-    add_custom_target(tidy
-        COMMAND ${CLANG_TIDY_EXECUTABLE}
-            ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-            ${GENERATOR_SOURCES}
-            --
-            -I${CMAKE_CURRENT_SOURCE_DIR}/include
-            -I${LLVM_INCLUDE_DIRS}
-            -I${CLANG_INCLUDE_DIRS}
-            ${LLVM_DEFINITIONS}
-            ${CLANG_DEFINITIONS}
-        COMMENT "Running clang-tidy"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-endif()
-
-# 测试目标
-if(BUILD_TESTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests")
-    enable_testing()
-    add_subdirectory(tests)
-endif()
-
-# 文档目标
-find_program(DOXYGEN_EXECUTABLE doxygen)
-if(DOXYGEN_EXECUTABLE AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/docs")
-    add_custom_target(doc
-        COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
-        COMMENT "Generating documentation"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs
-    )
-endif()

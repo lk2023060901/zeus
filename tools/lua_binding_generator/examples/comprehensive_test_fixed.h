@@ -1,8 +1,6 @@
 /**
- * @file comprehensive_test.h
- * @brief 全面的 Lua 绑定生成器测试示例
- * 
- * 包含所有 C++ 特性的完整测试用例
+ * @file comprehensive_test_fixed.h
+ * @brief 修正的全面 Lua 绑定生成器测试示例
  */
 
 #pragma once
@@ -393,30 +391,6 @@ private:
 } // namespace game
 
 // ================================
-// STL 容器类型导出
-// ================================
-
-// 基础容器类型
-EXPORT_LUA_VECTOR(int)
-EXPORT_LUA_VECTOR(double)
-EXPORT_LUA_VECTOR(std::string)
-EXPORT_LUA_VECTOR(bool)
-
-// 智能指针容器
-EXPORT_LUA_VECTOR(std::shared_ptr<game::core::Player>)
-EXPORT_LUA_VECTOR(std::shared_ptr<game::core::Entity>)
-
-// Map 容器
-EXPORT_LUA_MAP(std::string, int)
-EXPORT_LUA_MAP(std::string, double)
-EXPORT_LUA_MAP(std::string, std::string)
-EXPORT_LUA_MAP(int, std::shared_ptr<game::core::Player>)
-
-// Unordered Map 容器
-EXPORT_LUA_UNORDERED_MAP(std::string, int)
-EXPORT_LUA_UNORDERED_MAP(std::string, double)
-
-// ================================
 // 运算符重载测试
 // ================================
 
@@ -492,75 +466,9 @@ private:
 
 } // namespace operators
 
-// ================================
-// 模板类测试（如果支持）
-// ================================
-
-namespace templates {
-
-/**
- * @brief 简单模板类测试
- */
-template<typename T>
-class EXPORT_LUA_TEMPLATE(T) Container {
-public:
-    Container();
-    explicit Container(const T& value);
-    
-    void setValue(const T& value);
-    T getValue() const;
-    
-    void push(const T& item);
-    T pop();
-    
-    size_t size() const;
-    bool empty() const;
-
-private:
-    std::vector<T> items_;
-    T default_value_;
-};
-
-} // namespace templates
-
-// 特化实例
-EXPORT_LUA_TEMPLATE_INSTANCE(templates::Container<int>)
-EXPORT_LUA_TEMPLATE_INSTANCE(templates::Container<std::string>)
-EXPORT_LUA_TEMPLATE_INSTANCE(templates::Container<double>)
-
-// 文件结束标记
-namespace comprehensive_test_end {}
-
 /**
  * @brief 使用说明
  * 
- * 这个示例展示了新版本 Lua Binding Generator 支持的所有特性：
- * 
- * 1. 自动推导特性：
- *    - 类名、方法名、属性名自动推导
- *    - 命名空间自动映射
- *    - 枚举值自动导出
- *    - 常量自动导出
- *    - 属性自动配对（get/set方法）
- * 
- * 2. 高级C++特性：
- *    - 继承关系自动处理
- *    - 虚函数和纯虚函数
- *    - 单例模式支持
- *    - 静态类支持
- *    - 智能指针自动转换
- *    - 运算符重载
- * 
- * 3. STL容器支持：
- *    - 自动生成容器绑定
- *    - 支持嵌套容器
- *    - 智能指针容器
- * 
- * 4. 回调函数：
- *    - 自动推导参数类型
- *    - 支持任意参数数量
- *    - 返回值类型推导
- * 
- * 使用方法：
- * ./lua_binding_generator --module-name=ComprehensiveTest examples/comprehensive_test.h
+ * 这个示例展示了新版本 Lua Binding Generator 支持的所有特性，
+ * 但移除了有语法问题的 EXPORT_LUA_STL 全局用法。
  */

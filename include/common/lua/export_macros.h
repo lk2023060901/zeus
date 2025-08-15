@@ -9,6 +9,12 @@
 #pragma once
 
 /**
+ * @brief 辅助宏 - 用于生成唯一变量名
+ */
+#define EXPORT_LUA_CONCAT(a, b) a##b
+#define EXPORT_LUA_UNIQUE_NAME(prefix, line) EXPORT_LUA_CONCAT(_lua_##prefix##_export_, line)
+
+/**
  * @brief 宏版本信息
  */
 #define SIMPLIFIED_EXPORT_LUA_VERSION_MAJOR 2
@@ -204,23 +210,71 @@
 // ================================
 
 /**
- * @brief 导出 STL 容器及其标准方法
- * @param ContainerType STL 容器类型（自动从声明推导，此参数用于显式指定）
- * @param ... 可选参数：alias=别名, namespace=命名空间
+ * @brief 导出 std::vector<T> 容器类型
+ * @param ElementType 元素类型
+ * @param ... 可选参数：namespace=命名空间, alias=别名
  * 
  * 用法：
- * EXPORT_LUA_STL(std::vector<int>)                    // 显式指定类型
- * EXPORT_LUA_STL(std::map<string,Player*>, alias=PlayerRegistry)  // 带别名
+ * EXPORT_LUA_VECTOR(int)                    // std::vector<int>
+ * EXPORT_LUA_VECTOR(std::string, alias=StringArray)  // 带别名
  * 
- * 自动生成的方法（以 vector 为例）：
- * - 构造函数、size()、empty()、clear()
- * - push_back()、pop_back()、front()、back()
- * - at()、operator[]（作为 get/set 方法）
+ * 自动生成的方法：
+ * - size()、empty()、clear()
+ * - push_back()、pop_back()、back()、front()
+ * - at()、operator[]
  * - begin()、end()（迭代器支持）
- * - Lua 友好的 #操作符支持
  */
-#define EXPORT_LUA_STL(ContainerType, ...) \
-    __attribute__((annotate("lua_export_stl:" #ContainerType ":" #__VA_ARGS__)))
+#define EXPORT_LUA_VECTOR(ElementType, ...) \
+    namespace { \
+        static constexpr std::vector<ElementType>* __attribute__((annotate("lua_export_vector:" #ElementType ":" #__VA_ARGS__))) \
+        EXPORT_LUA_UNIQUE_NAME(vector, __LINE__) = nullptr; \
+    }
+
+/**
+ * @brief 导出 std::map<K,V> 容器类型
+ * @param KeyType 键类型
+ * @param ValueType 值类型
+ * @param ... 可选参数：namespace=命名空间, alias=别名
+ */
+#define EXPORT_LUA_MAP(KeyType, ValueType, ...) \
+    namespace { \
+        static constexpr std::map<KeyType, ValueType>* __attribute__((annotate("lua_export_map:" #KeyType "," #ValueType ":" #__VA_ARGS__))) \
+        EXPORT_LUA_UNIQUE_NAME(map, __LINE__) = nullptr; \
+    }
+
+/**
+ * @brief 导出 std::unordered_map<K,V> 容器类型
+ * @param KeyType 键类型
+ * @param ValueType 值类型  
+ * @param ... 可选参数：namespace=命名空间, alias=别名
+ */
+#define EXPORT_LUA_UNORDERED_MAP(KeyType, ValueType, ...) \
+    namespace { \
+        static constexpr std::unordered_map<KeyType, ValueType>* __attribute__((annotate("lua_export_unordered_map:" #KeyType "," #ValueType ":" #__VA_ARGS__))) \
+        EXPORT_LUA_UNIQUE_NAME(unordered_map, __LINE__) = nullptr; \
+    }
+
+/**
+ * @brief 导出 std::set<T> 容器类型
+ * @param ElementType 元素类型
+ * @param ... 可选参数：namespace=命名空间, alias=别名
+ */
+#define EXPORT_LUA_SET(ElementType, ...) \
+    namespace { \
+        static constexpr std::set<ElementType>* __attribute__((annotate("lua_export_set:" #ElementType ":" #__VA_ARGS__))) \
+        EXPORT_LUA_UNIQUE_NAME(set, __LINE__) = nullptr; \
+    }
+
+/**
+ * @brief 导出 std::list<T> 容器类型
+ * @param ElementType 元素类型
+ * @param ... 可选参数：namespace=命名空间, alias=别名
+ */
+#define EXPORT_LUA_LIST(ElementType, ...) \
+    namespace { \
+        static constexpr std::list<ElementType>* __attribute__((annotate("lua_export_list:" #ElementType ":" #__VA_ARGS__))) \
+        EXPORT_LUA_UNIQUE_NAME(list, __LINE__) = nullptr; \
+    }
 
 /**
  * @brief 导出回调函数（std::function 类型）
@@ -304,7 +358,10 @@
  * EXPORT_LUA_TEMPLATE_INSTANCE(Container<std::string>, alias=StringContainer)
  */
 #define EXPORT_LUA_TEMPLATE_INSTANCE(TemplateInstance, ...) \
-    __attribute__((annotate("lua_export_template_instance:" #TemplateInstance ":" #__VA_ARGS__)))
+    namespace { \
+        static constexpr TemplateInstance* __attribute__((annotate("lua_export_template_instance:" #TemplateInstance ":" #__VA_ARGS__))) \
+        EXPORT_LUA_UNIQUE_NAME(template_instance, __LINE__) = nullptr; \
+    }
 
 // ================================
 // 7. 控制宏
@@ -406,7 +463,11 @@
 #undef EXPORT_LUA_FUNCTION
 #undef EXPORT_LUA_VARIABLE
 #undef EXPORT_LUA_CONSTANT
-#undef EXPORT_LUA_STL
+#undef EXPORT_LUA_VECTOR
+#undef EXPORT_LUA_MAP  
+#undef EXPORT_LUA_UNORDERED_MAP
+#undef EXPORT_LUA_SET
+#undef EXPORT_LUA_LIST
 #undef EXPORT_LUA_CALLBACK
 #undef EXPORT_LUA_OPERATOR
 #undef EXPORT_LUA_TEMPLATE
@@ -424,7 +485,11 @@
 #define EXPORT_LUA_FUNCTION(...)
 #define EXPORT_LUA_VARIABLE(...)
 #define EXPORT_LUA_CONSTANT(...)
-#define EXPORT_LUA_STL(ContainerType, ...)
+#define EXPORT_LUA_VECTOR(ElementType, ...)
+#define EXPORT_LUA_MAP(KeyType, ValueType, ...)
+#define EXPORT_LUA_UNORDERED_MAP(KeyType, ValueType, ...)
+#define EXPORT_LUA_SET(ElementType, ...)
+#define EXPORT_LUA_LIST(ElementType, ...)
 #define EXPORT_LUA_CALLBACK(...)
 #define EXPORT_LUA_OPERATOR(op, ...)
 #define EXPORT_LUA_TEMPLATE(T, ...)

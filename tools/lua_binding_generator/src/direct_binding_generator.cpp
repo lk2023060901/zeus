@@ -151,10 +151,19 @@ DirectBindingGenerator::GenerationResult DirectBindingGenerator::GenerateModuleB
         std::string bindings_code;
         CodeBuilder bindings_builder(options_.indent_size);
         
+        // 预先收集所有需要的命名空间
+        for (const auto& item : export_items) {
+            std::string ns = namespace_manager_.ResolveNamespace(item);
+            namespace_manager_.GetNamespaceVariable(ns);
+        }
+        
         // 生成命名空间声明
         if (options_.use_namespace_tables) {
-            bindings_builder.AddLine(GenerateNamespaceDeclarations());
-            bindings_builder.AddEmptyLine();
+            std::string ns_declarations = GenerateNamespaceDeclarations();
+            if (!ns_declarations.empty()) {
+                bindings_builder.AddLine(ns_declarations);
+                bindings_builder.AddEmptyLine();
+            }
         }
         
         // 生成类绑定
@@ -177,23 +186,63 @@ DirectBindingGenerator::GenerationResult DirectBindingGenerator::GenerateModuleB
         // 生成函数绑定
         if (grouped_exports.count("function") > 0) {
             bindings_builder.AddComment("Function bindings");
+            
+            // 按命名空间分组函数绑定
+            std::unordered_map<std::string, std::vector<ExportInfo>> func_by_namespace;
             for (const auto& func_info : grouped_exports["function"]) {
-                bindings_builder.AddLine(GenerateFunctionBinding(func_info));
-                result.total_bindings++;
+                std::string ns = namespace_manager_.ResolveNamespace(func_info);
+                func_by_namespace[ns].push_back(func_info);
             }
-            bindings_builder.AddEmptyLine();
+            
+            // 为每个命名空间生成函数绑定
+            for (const auto& [ns, funcs] : func_by_namespace) {
+                if (funcs.size() > 1) {
+                    std::string ns_comment = (ns == "global") ? "Global functions" : 
+                                           "Functions in namespace " + ns;
+                    bindings_builder.AddComment(ns_comment);
+                }
+                
+                for (const auto& func_info : funcs) {
+                    bindings_builder.AddLine(GenerateFunctionBinding(func_info));
+                    result.total_bindings++;
+                }
+                
+                if (funcs.size() > 1) {
+                    bindings_builder.AddEmptyLine();
+                }
+            }
         }
         
         // 生成枚举绑定
         if (grouped_exports.count("enum") > 0) {
             bindings_builder.AddComment("Enum bindings");
+            
+            // 按命名空间分组枚举绑定
+            std::unordered_map<std::string, std::vector<ExportInfo>> enum_by_namespace;
             for (const auto& enum_info : grouped_exports["enum"]) {
-                // TODO: 从 AST 提取枚举值
-                std::vector<std::string> enum_values; 
-                bindings_builder.AddLine(GenerateEnumBinding(enum_info, enum_values));
-                result.total_bindings++;
+                std::string ns = namespace_manager_.ResolveNamespace(enum_info);
+                enum_by_namespace[ns].push_back(enum_info);
             }
-            bindings_builder.AddEmptyLine();
+            
+            // 为每个命名空间生成枚举绑定
+            for (const auto& [ns, enums] : enum_by_namespace) {
+                if (enums.size() > 1) {
+                    std::string ns_comment = (ns == "global") ? "Global enums" : 
+                                           "Enums in namespace " + ns;
+                    bindings_builder.AddComment(ns_comment);
+                }
+                
+                for (const auto& enum_info : enums) {
+                    // TODO: 从 AST 提取枚举值
+                    std::vector<std::string> enum_values; 
+                    bindings_builder.AddLine(GenerateEnumBinding(enum_info, enum_values));
+                    result.total_bindings++;
+                }
+                
+                if (enums.size() > 1) {
+                    bindings_builder.AddEmptyLine();
+                }
+            }
         }
         
         // 生成 STL 绑定
@@ -235,14 +284,24 @@ std::string DirectBindingGenerator::GenerateClassBinding(const ExportInfo& class
     std::string lua_class_name = class_info.lua_name.empty() ? class_info.name : class_info.lua_name;
     std::string qualified_name = GetQualifiedTypeName(class_info);
     
-    // 开始类绑定
-    builder.AddIndentedLine(namespace_var + ".new_usertype<" + qualified_name + ">(\"" + 
-                           lua_class_name + "\"");
+    // 开始类绑定 - 将类名放在同一行
+    builder.AddIndentedLine(namespace_var + ".new_usertype<" + qualified_name + ">(\"" + lua_class_name + "\",");
     builder.IncreaseIndent();
     
-    // 分类成员
+    // 分类成员，并去除重复
     std::vector<ExportInfo> constructors, methods, static_methods, properties, operators;
+    std::set<std::string> seen_signatures;
+    
     for (const auto& member : members) {
+        // 创建唯一签名来检测重复
+        std::string signature = member.export_type + "::" + member.name + "::" + 
+                               member.qualified_name + "::" + member.parent_class;
+        
+        if (seen_signatures.find(signature) != seen_signatures.end()) {
+            continue; // 跳过重复项
+        }
+        seen_signatures.insert(signature);
+        
         if (member.export_type == "constructor") {
             constructors.push_back(member);
         } else if (member.export_type == "method") {
@@ -256,45 +315,62 @@ std::string DirectBindingGenerator::GenerateClassBinding(const ExportInfo& class
         }
     }
     
-    // 生成构造函数绑定
-    if (!constructors.empty()) {
-        builder.AddIndentedLine(", " + GenerateConstructorBindings(constructors));
+    // 收集所有绑定项
+    std::vector<std::string> all_bindings;
+    
+    // 生成继承关系 (必须在构造函数之前)
+    if (!class_info.base_classes.empty()) {
+        all_bindings.push_back(GenerateInheritanceCode(class_info));
     }
     
-    // 生成继承关系
-    if (!class_info.base_classes.empty()) {
-        builder.AddIndentedLine(", " + GenerateInheritanceCode(class_info));
+    // 生成构造函数绑定
+    for (const auto& ctor : constructors) {
+        std::string ctor_name = ctor.lua_name.empty() ? ctor.name : ctor.lua_name;
+        std::string qualified_ctor_name = GetQualifiedTypeName(ctor);
+        all_bindings.push_back("\"" + ctor_name + "\", &" + qualified_ctor_name);
     }
     
     // 生成方法绑定
-    if (!methods.empty()) {
-        std::string method_bindings = GenerateMethodBindings(methods);
-        if (!method_bindings.empty()) {
-            builder.AddIndentedLine(", " + method_bindings);
-        }
+    for (const auto& method : methods) {
+        std::string method_name = method.lua_name.empty() ? method.name : method.lua_name;
+        std::string qualified_method_name = GetQualifiedTypeName(method);
+        all_bindings.push_back("\"" + method_name + "\", &" + qualified_method_name);
     }
     
     // 生成静态方法绑定
-    if (!static_methods.empty()) {
-        std::string static_bindings = GenerateStaticMethodBindings(static_methods);
-        if (!static_bindings.empty()) {
-            builder.AddIndentedLine(", " + static_bindings);
-        }
+    for (const auto& static_method : static_methods) {
+        std::string static_name = static_method.lua_name.empty() ? static_method.name : static_method.lua_name;
+        std::string qualified_static_name = GetQualifiedTypeName(static_method);
+        all_bindings.push_back("\"" + static_name + "\", &" + qualified_static_name);
     }
     
     // 生成属性绑定
-    if (!properties.empty()) {
-        std::string property_bindings = GeneratePropertyBindings(properties);
-        if (!property_bindings.empty()) {
-            builder.AddIndentedLine(", " + property_bindings);
+    for (const auto& prop : properties) {
+        std::string prop_name = prop.lua_name.empty() ? prop.name : prop.lua_name;
+        std::string qualified_prop_name = GetQualifiedTypeName(prop);
+        
+        if (prop.property_access == "readonly") {
+            all_bindings.push_back("\"" + prop_name + "\", sol::readonly_property(&" + qualified_prop_name + ")");
+        } else {
+            all_bindings.push_back("\"" + prop_name + "\", sol::property(&" + qualified_prop_name + ")");
         }
     }
     
     // 生成操作符绑定
-    if (!operators.empty()) {
-        std::string operator_bindings = GenerateOperatorBindings(operators);
-        if (!operator_bindings.empty()) {
-            builder.AddIndentedLine(", " + operator_bindings);
+    for (const auto& op : operators) {
+        std::string op_name = op.lua_name.empty() ? op.name : op.lua_name;
+        std::string qualified_op_name = GetQualifiedTypeName(op);
+        all_bindings.push_back("\"" + op_name + "\", &" + qualified_op_name);
+    }
+    
+    // 输出所有绑定项，除了最后一项外都加逗号
+    for (size_t i = 0; i < all_bindings.size(); ++i) {
+        if (i == all_bindings.size() - 1) {
+            // 最后一项不加逗号
+            builder.AddIndentedLine(all_bindings[i]);
+        } else {
+            // 其他项加逗号
+            builder.AddIndentedLine(all_bindings[i] + ",");
         }
     }
     
@@ -328,18 +404,24 @@ std::string DirectBindingGenerator::GenerateEnumBinding(const ExportInfo& enum_i
     std::string lua_name = enum_info.lua_name.empty() ? enum_info.name : enum_info.lua_name;
     std::string qualified_name = GetQualifiedTypeName(enum_info);
     
-    builder.AddIndentedLine(namespace_var + ".new_enum(\"" + lua_name + "\"");
-    builder.IncreaseIndent();
-    
-    for (size_t i = 0; i < enum_values.size(); ++i) {
-        const auto& value = enum_values[i];
-        std::string prefix = (i == 0 ? ", " : ", ");
-        builder.AddIndentedLine(prefix + "\"" + value + "\", " + 
-                               qualified_name + "::" + value);
+    if (enum_values.empty()) {
+        // 如果没有枚举值，生成简化版本
+        builder.AddIndentedLine(namespace_var + ".new_enum(\"" + lua_name + "\");");
+    } else {
+        // 多行格式，每个枚举值一行
+        builder.AddIndentedLine(namespace_var + ".new_enum(\"" + lua_name + "\"");
+        builder.IncreaseIndent();
+        
+        for (size_t i = 0; i < enum_values.size(); ++i) {
+            const auto& value = enum_values[i];
+            std::string prefix = (i == 0 ? ", " : ", ");
+            builder.AddIndentedLine(prefix + "\"" + value + "\", " + 
+                                   qualified_name + "::" + value);
+        }
+        
+        builder.DecreaseIndent();
+        builder.AddIndentedLine(");");
     }
-    
-    builder.DecreaseIndent();
-    builder.AddIndentedLine(");");
     
     return builder.Build();
 }
@@ -410,12 +492,23 @@ std::string DirectBindingGenerator::GenerateNamespaceDeclarations() {
         if (ns != "global") {
             std::string var_name = namespace_manager_.GetNamespaceVariable(ns);
             
-            // 处理嵌套命名空间 (e.g., "game.entities" -> ["game"]["entities"])
+            // 处理命名空间，支持 :: 和 . 分隔符
             std::string lua_path = "lua";
-            std::istringstream iss(ns);
+            std::string processed_ns = ns;
+            
+            // 替换 :: 为 .
+            size_t pos = 0;
+            while ((pos = processed_ns.find("::", pos)) != std::string::npos) {
+                processed_ns.replace(pos, 2, ".");
+                pos += 1;
+            }
+            
+            std::istringstream iss(processed_ns);
             std::string part;
             while (std::getline(iss, part, '.')) {
-                lua_path += "[\"" + part + "\"]";
+                if (!part.empty()) {
+                    lua_path += "[\"" + part + "\"]";
+                }
             }
             
             builder.AddIndentedLine("auto " + var_name + " = " + lua_path + 
@@ -463,6 +556,33 @@ std::string DirectBindingGenerator::GenerateConstructorBindings(const std::vecto
     return result;
 }
 
+std::vector<std::string> DirectBindingGenerator::SplitConstructorBindings(const std::vector<ExportInfo>& constructors) {
+    std::vector<std::string> lines;
+    
+    if (constructors.empty()) {
+        lines.push_back("sol::constructors<>()");
+        return lines;
+    }
+    
+    // 为每个构造函数创建一个绑定
+    std::set<std::string> seen_ctors;
+    for (const auto& ctor : constructors) {
+        std::string ctor_name = ctor.lua_name.empty() ? ctor.name : ctor.lua_name;
+        std::string qualified_name = GetQualifiedTypeName(ctor);
+        
+        // 避免重复的构造函数绑定
+        std::string signature = ctor_name + "::" + qualified_name;
+        if (seen_ctors.find(signature) != seen_ctors.end()) {
+            continue;
+        }
+        seen_ctors.insert(signature);
+        
+        lines.push_back("\"" + ctor_name + "\", &" + qualified_name);
+    }
+    
+    return lines;
+}
+
 std::string DirectBindingGenerator::GenerateMethodBindings(const std::vector<ExportInfo>& methods) {
     std::string result;
     
@@ -475,6 +595,27 @@ std::string DirectBindingGenerator::GenerateMethodBindings(const std::vector<Exp
     }
     
     return result;
+}
+
+std::vector<std::string> DirectBindingGenerator::SplitMethodBindings(const std::vector<ExportInfo>& methods) {
+    std::vector<std::string> lines;
+    std::set<std::string> seen_methods;
+    
+    for (const auto& method : methods) {
+        std::string lua_name = method.lua_name.empty() ? method.name : method.lua_name;
+        std::string qualified_name = GetQualifiedTypeName(method);
+        
+        // 避免重复的方法绑定
+        std::string signature = lua_name + "::" + qualified_name;
+        if (seen_methods.find(signature) != seen_methods.end()) {
+            continue;
+        }
+        seen_methods.insert(signature);
+        
+        lines.push_back("\"" + lua_name + "\", &" + qualified_name);
+    }
+    
+    return lines;
 }
 
 std::string DirectBindingGenerator::GeneratePropertyBindings(const std::vector<ExportInfo>& properties) {
@@ -497,6 +638,35 @@ std::string DirectBindingGenerator::GeneratePropertyBindings(const std::vector<E
     return result;
 }
 
+std::vector<std::string> DirectBindingGenerator::SplitPropertyBindings(const std::vector<ExportInfo>& properties) {
+    std::vector<std::string> lines;
+    std::set<std::string> seen_properties;
+    
+    for (const auto& prop : properties) {
+        std::string lua_name = prop.lua_name.empty() ? prop.name : prop.lua_name;
+        std::string qualified_name = GetQualifiedTypeName(prop);
+        
+        // 避免重复的属性绑定
+        std::string signature = lua_name + "::" + qualified_name;
+        if (seen_properties.find(signature) != seen_properties.end()) {
+            continue;
+        }
+        seen_properties.insert(signature);
+        
+        std::string binding;
+        if (prop.property_access == "readonly") {
+            binding = "\"" + lua_name + "\", sol::readonly_property(&" + qualified_name + ")";
+        } else {
+            // TODO: 处理读写属性，需要 getter 和 setter
+            binding = "\"" + lua_name + "\", sol::property(&" + qualified_name + ")";
+        }
+        
+        lines.push_back(binding);
+    }
+    
+    return lines;
+}
+
 std::string DirectBindingGenerator::GenerateStaticMethodBindings(const std::vector<ExportInfo>& static_methods) {
     std::string result;
     
@@ -511,9 +681,51 @@ std::string DirectBindingGenerator::GenerateStaticMethodBindings(const std::vect
     return result;
 }
 
+std::vector<std::string> DirectBindingGenerator::SplitStaticMethodBindings(const std::vector<ExportInfo>& static_methods) {
+    std::vector<std::string> lines;
+    std::set<std::string> seen_static_methods;
+    
+    for (const auto& method : static_methods) {
+        std::string lua_name = method.lua_name.empty() ? method.name : method.lua_name;
+        std::string qualified_name = GetQualifiedTypeName(method);
+        
+        // 避免重复的静态方法绑定
+        std::string signature = lua_name + "::" + qualified_name;
+        if (seen_static_methods.find(signature) != seen_static_methods.end()) {
+            continue;
+        }
+        seen_static_methods.insert(signature);
+        
+        lines.push_back("\"" + lua_name + "\", &" + qualified_name);
+    }
+    
+    return lines;
+}
+
 std::string DirectBindingGenerator::GenerateOperatorBindings(const std::vector<ExportInfo>& operators) {
     // TODO: 实现操作符绑定
     return "";
+}
+
+std::vector<std::string> DirectBindingGenerator::SplitOperatorBindings(const std::vector<ExportInfo>& operators) {
+    std::vector<std::string> lines;
+    std::set<std::string> seen_operators;
+    
+    for (const auto& op : operators) {
+        std::string lua_name = op.lua_name.empty() ? op.name : op.lua_name;
+        std::string qualified_name = GetQualifiedTypeName(op);
+        
+        // 避免重复的操作符绑定
+        std::string signature = lua_name + "::" + qualified_name;
+        if (seen_operators.find(signature) != seen_operators.end()) {
+            continue;
+        }
+        seen_operators.insert(signature);
+        
+        lines.push_back("\"" + lua_name + "\", &" + qualified_name);
+    }
+    
+    return lines;
 }
 
 std::string DirectBindingGenerator::GenerateInheritanceCode(const ExportInfo& class_info) {

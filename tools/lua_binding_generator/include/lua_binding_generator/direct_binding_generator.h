@@ -212,6 +212,32 @@ private:
      */
     std::string GenerateOperatorBindings(const std::vector<ExportInfo>& operators);
 
+    // 格式化的多行绑定生成方法
+    /**
+     * @brief 将构造函数绑定分割为多行
+     */
+    std::vector<std::string> SplitConstructorBindings(const std::vector<ExportInfo>& constructors);
+
+    /**
+     * @brief 将方法绑定分割为多行
+     */
+    std::vector<std::string> SplitMethodBindings(const std::vector<ExportInfo>& methods);
+
+    /**
+     * @brief 将属性绑定分割为多行
+     */
+    std::vector<std::string> SplitPropertyBindings(const std::vector<ExportInfo>& properties);
+
+    /**
+     * @brief 将静态方法绑定分割为多行
+     */
+    std::vector<std::string> SplitStaticMethodBindings(const std::vector<ExportInfo>& static_methods);
+
+    /**
+     * @brief 将操作符绑定分割为多行
+     */
+    std::vector<std::string> SplitOperatorBindings(const std::vector<ExportInfo>& operators);
+
     /**
      * @brief 生成继承关系代码
      */

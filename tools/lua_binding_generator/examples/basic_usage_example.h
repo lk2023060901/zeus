@@ -12,6 +12,7 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <map>
 
 // ================================
 // 1. 模块定义 - 文件级别的模块归属
@@ -126,9 +127,9 @@ int calculateCombatDamage(const Weapon& weapon, int armor);
 // ================================
 
 // 导出 STL 容器类型
-EXPORT_LUA_STL(std::vector<int>, alias=IntArray)
-EXPORT_LUA_STL(std::vector<std::shared_ptr<game::Player>>, alias=PlayerList)
-EXPORT_LUA_STL(std::map<std::string, int>, alias=StringIntMap)
+EXPORT_LUA_VECTOR(int, alias=IntArray)
+EXPORT_LUA_VECTOR(std::shared_ptr<game::Player>, alias=PlayerList)
+EXPORT_LUA_MAP(std::string, int, alias=StringIntMap)
 
 namespace inventory {
 
@@ -265,7 +266,7 @@ static bool debug_enabled = false;
  *    ./lua_binding_generator --parallel --max-threads=4 src/*.h
  * 
  * 5. 详细输出：
- *    ./lua_binding_generator --verbose --stats example_v2_usage.h
+ *    ./lua_binding_generator --verbose --show-stats example_v2_usage.h
  * 
  * 6. 使用配置文件：
  *    ./lua_binding_generator --config=lua_bindings_config.json src/*.h
